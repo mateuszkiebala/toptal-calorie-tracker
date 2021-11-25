@@ -1,5 +1,5 @@
-module Common
-  class Base < BasicStructure
+module Base
+  class Auth < BasicStructure
 
     FIELDS = [:current_user].freeze
     attr_accessor *FIELDS

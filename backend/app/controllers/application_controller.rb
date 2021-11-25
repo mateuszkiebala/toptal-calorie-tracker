@@ -41,7 +41,7 @@ class ApplicationController < ActionController::API
     def handle_command(command_model, data, success_status, error_status = :bad_request)
       command = command_model.new(data).call
       if command.success?
-        render_success(command.result, success_status)
+        render_success(command.result.to_json, success_status)
       else
         render_error(command.get_errors.dig(:messages), error_status)
       end

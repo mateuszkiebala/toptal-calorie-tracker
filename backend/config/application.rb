@@ -22,7 +22,7 @@ module Backend
 
     config.load_defaults 6.0
     config.api_only = true
-    config.autoload_paths += %w'lib'.each { |path| Rails.root.join(path) }
+    config.autoload_paths += %w'lib'.map { |path| Rails.root.join(path) }
     config.active_record.index_nested_attribute_errors = true
 
     config.middleware.insert_before 0, Rack::Cors do

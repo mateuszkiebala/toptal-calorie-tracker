@@ -22,9 +22,12 @@ class UsersControllerTest < AuthenticationTest
     response = JSON.parse(@response.body)
     expected = {
       "data" => {
-        "id" => @user.id,
-        "username" => @user.username,
-        "role" => @user.role
+        "id" => @user.id.to_s,
+        "type" => "user",
+        "attributes" => {
+          "username" => @user.username,
+          "role" => @user.role
+        }
       }
     }
     assert_equal(expected, response)

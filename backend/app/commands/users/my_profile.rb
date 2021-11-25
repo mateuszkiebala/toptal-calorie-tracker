@@ -1,12 +1,12 @@
 module Users
-  class MyProfile < Common::Base
+  class MyProfile < Base::Auth
 
     def initialize(params)
       super(params)
     end
 
     def execute
-      @result[:data] = @current_user.as_json(only: [:id, :username, :role])
+      @result = UserSerializer.new(@current_user).serializable_hash
       @succeeded = true
     end
   end
