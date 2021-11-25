@@ -9,14 +9,17 @@ class AuthenticateApiRequest < BasicStructure
   end
 
   def execute
-    return unless decoded_auth_token.present?
+    unless decoded_auth_token.present?
+      add_error(msg: 'Invalid token', code: 401)
+      return
+    end
 
     user = User.find_by(id: decoded_auth_token[:user_id], auth_token: auth_token)
     if user.present?
       @succeeded = true
       @result = user
     else
-      add_error(msg: 'Invalid access token', code: 401)
+      add_error(msg: 'Invalid token', code: 401)
     end
   end
 
