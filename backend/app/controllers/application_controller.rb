@@ -1,8 +1,8 @@
 class ApplicationController < ActionController::API
   include ApiError
 
-  before_action :authorize_request
-  skip_before_action :authorize_request, only: [:route_not_found]
+  before_action :authenticate_request
+  skip_before_action :authenticate_request, only: [:route_not_found]
   before_action :parse_body
 
   def route_not_found
@@ -12,9 +12,9 @@ class ApplicationController < ActionController::API
 
   protected
 
-  def authorize_request
-    @current_user = AuthorizeApiRequest.new(request.headers).call.result
-    raise AuthorizationError, "Not Authorized" if @current_user.blank?
+  def authenticate_request
+    @current_user = AuthenticateApiRequest.new(request.headers).call.result
+    raise AuthenticationError, "Not Authenticated." if @current_user.blank?
   end
 
   def handle_bad_request(ex)

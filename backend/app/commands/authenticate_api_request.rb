@@ -1,4 +1,4 @@
-class AuthorizeApiRequest < BasicStructure
+class AuthenticateApiRequest < BasicStructure
 
   FIELDS = [:headers].freeze
   attr_accessor *FIELDS

@@ -3,14 +3,14 @@ require 'controllers/authentication_test'
 
 class UsersControllerTest < AuthenticationTest
 
-  test 'fail my_profile - request must be authorised' do
+  test 'fail my_profile - request must be authenticated' do
     # given
     @headers = {
       CONTENT_TYPE: "application/json"
     }
 
     # when, then
-    assert_unauthorized(:get, "/api/v1/my_profile")
+    assert_unauthenticated(:get, "/api/v1/my_profile")
   end
 
   test 'success my_profile' do

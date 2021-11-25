@@ -10,14 +10,14 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
     }
   end
 
-  def assert_unauthorized(request_type, path)
+  def assert_unauthenticated(request_type, path)
     # given when
     self.send(request_type, path)
 
     # then
     assert_response :unauthorized
     response = JSON.parse(@response.body)
-    expected = { "error" => { "messages" => "Not Authorized" }}
+    expected = { "error" => { "messages" => "Not Authenticated" }}
     assert_equal(expected, response)
   end
 end
