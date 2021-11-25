@@ -1,6 +1,8 @@
 require 'faker'
 
 class User < ApplicationRecord
+  has_many :foods, dependent: :destroy
+
   enum role: %i[regular admin].freeze
 
   def self.generate_random

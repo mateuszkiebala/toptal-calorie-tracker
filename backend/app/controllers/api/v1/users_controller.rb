@@ -5,7 +5,7 @@ module Api
       # GET /my_profile
       def my_profile
         data = { current_user: @current_user }
-        handle_command(Users::Profile, data, :ok)
+        handle_command(Users::MyProfile, data, :ok)
       end
     end
   end

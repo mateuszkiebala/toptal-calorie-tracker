@@ -1,5 +1,5 @@
 module Users
-  class Profile < Common::Base
+  class MyProfile < Common::Base
 
     def initialize(params)
       super(params)

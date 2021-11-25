@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_24_233036) do
+ActiveRecord::Schema.define(version: 2021_11_25_181030) do
+
+  create_table "foods", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "user_id"
+    t.decimal "calorie_value", precision: 10, scale: 2, null: false
+    t.datetime "taken_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name", "user_id"], name: "index_foods_on_name_and_user_id", unique: true
+    t.index ["user_id"], name: "index_foods_on_user_id"
+  end
 
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin", force: :cascade do |t|
     t.string "username", null: false
@@ -22,4 +33,5 @@ ActiveRecord::Schema.define(version: 2021_11_24_233036) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "foods", "users"
 end
