@@ -201,6 +201,34 @@ module Admin
       assert_equal("old", food.name)
     end
 
+    test 'delete fail - unauthorised regular user' do
+      assert_unauthenticated('delete', '/api/v1/admin/foods/123')
+    end
+
+    test 'delete fail - food not found' do
+      # given, when
+      delete "/api/v1/admin/foods/", params: {}, headers: @headers
+
+      # then
+      assert_response :not_found
+      response = JSON.parse(@response.body)
+      expected = {"errors":[{"status":404,"detail":"Endpoint not found","source":nil,"title":"Not Found","code":nil}]}
+      assert_equal(expected.to_json, response.to_json)
+    end
+
+    test 'delete success' do
+      # given
+      food = create(:food)
+
+      # when
+      delete "/api/v1/admin/foods/#{food.id}", params: {}, headers: @headers
+
+      # then
+      assert_response :no_content
+      assert_empty(@response.body)
+      assert_nil(Food.find_by(id: food.id))
+    end
+
     def assert_unauthenticated(request_type, path)
       # given when
       self.send(request_type, path)
