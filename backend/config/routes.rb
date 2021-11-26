@@ -4,6 +4,10 @@ Rails.application.routes.draw do
       get '/my_profile', to: 'users#my_profile'
 
       resources :foods, only: [:create, :index]
+
+      namespace :admin do
+        resources :foods, only: [:index]
+      end
     end
   end
 

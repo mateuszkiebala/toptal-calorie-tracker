@@ -276,4 +276,24 @@ class FoodsControllerTest < AuthenticationTest
     expected = [food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
     assert_equal(expected, response["data"].to_json)
   end
+
+  test 'success index - fetch only your data' do
+    # given
+    user_2 = create(:user)
+    create(:food, taken_at: '2021-11-21T00:00:00', user: user_2)
+    create(:food, taken_at: '2021-11-22T00:00:00', user: user_2)
+    create(:food, taken_at: '2021-11-23T00:00:00', user: user_2)
+    create(:food, taken_at: '2021-11-24T00:00:00', user: user_2)
+    food1 = create(:food, taken_at: '2021-11-25T00:00:00', user: @user)
+    food2 = create(:food, taken_at: '2021-11-26T00:00:00', user: @user)
+    food3 = create(:food, taken_at: '2021-11-27T00:00:00', user: @user)
+
+    get "/api/v1/foods", headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    expected = [food3, food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
+    assert_equal(expected, response["data"].to_json)
+  end
 end

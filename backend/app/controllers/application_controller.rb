@@ -10,14 +10,21 @@ class ApplicationController < ActionController::API
 
   def route_not_found
     logger.error("Endpoint not found (#{params})")
-    raise RouteNotFoundError, "Endpoint not found"
+    raise RouteNotFoundError.new
   end
 
   protected
 
   def authenticate_request
-    @current_user = AuthenticateApiRequest.new(request.headers).call
-    raise AuthenticationError, "Not Authenticated." if @current_user.blank?
+    raise AuthenticationError.new if current_user.blank?
+  end
+
+  def authorise_admin_access
+    raise AuthorisationError.new unless current_user.admin?
+  end
+
+  def current_user
+    @current_user ||= AuthenticateApiRequest.new(request.headers).call
   end
 
   def parse_body
