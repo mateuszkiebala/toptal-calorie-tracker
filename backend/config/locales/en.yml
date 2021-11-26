@@ -8,6 +8,12 @@ en:
       user:
         role: 'role'
         username: 'username'
+    errors:
+      models:
+        food:
+          attributes:
+            taken_at:
+              invalid_format: "is not a datetime of format '%Y-%m-%dT%H:%M:%S'"
   errors:
     format:
       "'%{attribute}' %{message}"

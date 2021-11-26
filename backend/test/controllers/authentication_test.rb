@@ -17,7 +17,7 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
     # then
     assert_response :unauthorized
     response = JSON.parse(@response.body)
-    expected = {"errors"=>[{"source"=>nil, "details"=>["Not Authenticated"]}]}
+    expected = {"errors"=>[{"status"=>401, "detail"=>"Not Authenticated", "source"=>nil, "title"=>"Unauthorized", "code"=>nil}]}
     assert_equal(expected, response)
   end
 end

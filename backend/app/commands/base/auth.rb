@@ -1,5 +1,5 @@
 module Base
-  class Auth < BasicStructure
+  class Auth < Structure
 
     FIELDS = [:current_user].freeze
     attr_accessor *FIELDS

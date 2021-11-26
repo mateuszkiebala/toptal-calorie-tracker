@@ -44,16 +44,13 @@ module ApiErrorHandling
     end
 
     def render_error_from_message(message, status)
-      api_error = ApiError.new(source: nil, details: [message])
+      code = Rack::Utils::SYMBOL_TO_STATUS_CODE[status]
+      api_error = ApiError.new(detail: message, status: code, title: Rack::Utils::HTTP_STATUS_CODES[code])
       render_error(ApiError.serialize([api_error]), status)
     end
 
     def render_error(error, status)
       render json: error.to_json, status: status
-    end
-
-    def render_success(data = {}, status)
-      render json: data, status: status
     end
   end
 end

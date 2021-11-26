@@ -13,7 +13,7 @@ class ApplicationController < ActionController::API
   protected
 
   def authenticate_request
-    @current_user = AuthenticateApiRequest.new(request.headers).call.result
+    @current_user = AuthenticateApiRequest.new(request.headers).call
     raise AuthenticationError, "Not Authenticated." if @current_user.blank?
   end
 
@@ -32,10 +32,19 @@ class ApplicationController < ActionController::API
     def handle_command(command_model, data)
       command = command_model.new(data).call
       if command.success?
-        render_success(command.result.to_json, command.status || :ok)
+        render_jsonapi_success(command.result, command.status || :ok)
       else
-        render_error(command.get_errors, command.status || :bad_request)
+        render_jsonapi_errors(command.get_errors, command.status || :bad_request)
       end
+    end
+
+    #def render_index(data_source)
+    def render_jsonapi_success(data = {}, status)
+      render jsonapi: data, status: status
+    end
+
+    def render_jsonapi_errors(data = {}, status)
+      render jsonapi_errors: data, status: status
     end
   end
 end

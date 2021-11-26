@@ -7,7 +7,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
 
     # then
     assert_response 404
-    expected = {"errors"=>[{"source"=>nil, "details"=>["Endpoint not found"]}]}
+    expected = {"errors"=>[{"status"=>404, "detail"=>"Endpoint not found", "source"=>nil, "title"=>"Not Found", "code"=>nil}]}
     assert_equal(expected, JSON.parse(@response.body))
   end
 end

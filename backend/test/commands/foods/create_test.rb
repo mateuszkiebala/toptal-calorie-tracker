@@ -26,8 +26,8 @@ class Foods::CreateTest < BaseTest
 
     # then
     assert_not(command.success?)
-    expected = { :errors => [{:source => :food_attributes, :details => ["can't be blank"]}] }
-    assert_equal(expected, command.get_errors)
+    assert_nil(command.result)
+    assert_equal(["'Food attributes' can't be blank"], command.errors.full_messages)
     assert_equal(:bad_request, command.status)
   end
 
@@ -40,8 +40,7 @@ class Foods::CreateTest < BaseTest
 
     # then
     assert_not(command.success?)
-    expected = {:errors=>[{:source=>:food_attributes, :details=>["can't be blank"]}]}
-    assert_equal(expected, command.get_errors)
+    assert_equal(["'Food attributes' can't be blank"], command.errors.full_messages)
     assert_equal(:bad_request, command.status)
   end
 
@@ -57,20 +56,15 @@ class Foods::CreateTest < BaseTest
 
     # then
     assert_not(command.success?)
-    expected = {
-      :errors => [{
-                    :source => :name,
-                    :details => ["is too short (minimum is 3 characters)"]
-                  }, {
-                    :source => :calorie_value,
-                    :details => ["must be greater than or equal to 0"]
-                  }, {
-                    :source => :taken_at,
-                    :details => ["can't be blank", "is not a datetime of format '%Y-%m-%dT%H:%M:%S'"]
-                  }]
-    }
-    assert_equal(expected, command.get_errors)
-    assert_equal(:bad_request, command.status)
+    expected = [
+      "'name' is too short (minimum is 3 characters)",
+      "'calorie_value' must be greater than or equal to 0",
+      "'taken_at' can't be blank",
+      "'taken_at' is not a datetime of format '%Y-%m-%dT%H:%M:%S'"
+    ]
+
+    assert_equal(expected, command.get_errors.full_messages)
+    assert_equal(:unprocessable_entity, command.status)
   end
 
   test 'pass more attributes than permitted - skip them' do
@@ -107,7 +101,7 @@ class Foods::CreateTest < BaseTest
     assert(command.success?)
     expected = {
       :data => {
-        :id => command.result[:data][:id],
+        :id => command.result.id.to_s,
         :type => :foods,
         :attributes => {
           :name => "test name",
@@ -124,7 +118,7 @@ class Foods::CreateTest < BaseTest
         }
       }
     }
-    assert_equal(expected, command.result)
+    assert_equal(expected, FoodSerializer.new(command.result).serializable_hash)
     assert_equal(:created, command.status)
     assert_nil(command.get_errors)
   end

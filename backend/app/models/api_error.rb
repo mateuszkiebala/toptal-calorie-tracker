@@ -1,28 +1,20 @@
 class ApiError
   include ActiveModel::Model
 
-  attr_accessor :source, :details
+  attr_accessor :status, :title, :detail
 
   def self.serialize(api_errors)
     return if api_errors.blank?
 
-    merged_by_source = {}
-    api_errors.map do |api_error|
-      merged_by_source[api_error.source] ||= []
-      merged_by_source[api_error.source] << api_error
-    end
-
-    data = merged_by_source.map do |source, api_errs|
-      next if api_errs.blank?
-
-      merged_details = api_errs.map { |ae| ae.details }.flatten
-      next if merged_details.blank?
-
+    data = api_errors.map do |api_error|
       {
-        source: source,
-        details: merged_details
+        status: api_error.status,
+        detail: api_error.detail,
+        source: nil,
+        title: api_error.title,
+        code: nil
       }
-    end.compact
+    end
 
     return if data.blank?
     { errors: data }

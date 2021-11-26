@@ -5,7 +5,7 @@ class DatetimeValidator < ActiveModel::EachValidator
     value = value.present? && value.is_a?(String) ? value.gsub(/\A"|"\Z/, '') : nil
     format = "%Y-%m-%dT%H:%M:%S"
     unless (DateTime.strptime(value, format) rescue false)
-      record.errors.add(attribute, "is not a datetime of format '#{format}'")
+      record.errors.add(attribute, :invalid_format)
     end
   end
 end

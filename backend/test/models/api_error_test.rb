@@ -26,69 +26,39 @@ class ApiErrorTest < ActiveSupport::TestCase
 
   test 'serialization empty details error' do
     # given
-    api_errors = [ApiError.new(source: "test_key", details: [])]
+    api_errors = [ApiError.new(status: 401, detail: "", title: "Bad Request")]
 
     # when
     result = ApiError.serialize(api_errors)
 
     # then
-    assert_nil(result)
-  end
-
-  test 'serialization multiple errors - no source' do
-    # given
-    api_error_1 = ApiError.new(source: nil, details: %w[d1 d2])
-    api_error_2 = ApiError.new(source: nil, details: %w[d3])
-    api_error_3 = ApiError.new(source: nil, details: %w[])
-
-    api_errors = [api_error_1, api_error_2, api_error_3]
-
-    # when
-    result = ApiError.serialize(api_errors)
-
-    # then
-    expected = { :errors => [{
-                               :source => nil,
-                               :details => %w[d1 d2 d3]
-                             }]}
-    assert_equal(expected, result)
-  end
-
-  test 'serialization single error' do
-    # given
-    api_errors = [ApiError.new(source: "test_key", details: %w[d1 d2])]
-
-    # when
-    result = ApiError.serialize(api_errors)
-
-    # then
-    expected = { :errors => [{ :source => "test_key", :details => %w[d1 d2] }] }
+    expected = {:errors=>[{:status=>401, :detail=>"", :source=>nil, :title=>"Bad Request", :code=>nil}]}
     assert_equal(expected, result)
   end
 
   test 'serialization multiple errors' do
     # given
-    api_error_1 = ApiError.new(source: "test_key_1", details: %w[d1 d2])
-    api_error_2 = ApiError.new(source: "test_key_2", details: %w[d3])
-    api_error_3 = ApiError.new(source: "test_key_3", details: %w[])
-    api_error_4 = ApiError.new(source: "test_key_3", details: %w[d3 d8])
-    api_error_5 = ApiError.new(source: "test_key_4", details: %w[])
+    api_error_1 = ApiError.new(status: 401, detail: "Invalid parsing", title: "Bad Request")
+    api_error_2 = ApiError.new(status: 402, detail: "Invalid parsing 2", title: "Bad Request")
 
-    api_errors = [api_error_1, api_error_2, api_error_3, api_error_4, api_error_5]
+    api_errors = [api_error_1, api_error_2]
 
     # when
     result = ApiError.serialize(api_errors)
 
     # then
     expected = { :errors => [{
-                               :source => "test_key_1",
-                               :details => %w[d1 d2]
+                               :status=>401,
+                               :detail=>"Invalid parsing",
+                               :source=>nil,
+                               :title=>"Bad Request",
+                               :code=>nil
                              }, {
-                               :source => "test_key_2",
-                               :details => %w[d3]
-                             }, {
-                               :source => "test_key_3",
-                               :details => %w[d3 d8]
+                               :status=>402,
+                               :detail=>"Invalid parsing 2",
+                               :source=>nil,
+                               :title=>"Bad Request",
+                               :code=>nil
                              }]}
     assert_equal(expected, result)
   end
