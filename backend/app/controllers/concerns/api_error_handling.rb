@@ -17,34 +17,39 @@ module ApiErrorHandling
     def handle_internal_server_error(ex)
       if Rails.env.production? || Rails.env.test?
         logger.error("Received a bad request (#{ex.message})")
-        render_error("Internal server error", :internal_server_error)
+        render_error_from_message("Internal server error", :internal_server_error)
       else
         raise ex
       end
     end
 
     def handle_bad_request(e)
-      render_error(e.message, :bad_request)
+      render_error_from_message(e.message, :bad_request)
     end
 
     def handle_authentication_error(e)
-      render_error("Not Authenticated", :unauthorized)
+      render_error_from_message("Not Authenticated", :unauthorized)
     end
 
     def handle_route_not_found_error(e)
-      render_error("Endpoint not found", :not_found)
+      render_error_from_message("Endpoint not found", :not_found)
     end
 
     def handle_json_parser_error(e)
-      render_error("Invalid JSON -> #{e}", :bad_request)
+      render_error_from_message("Invalid JSON -> #{e}", :bad_request)
     end
 
     def handle_not_found(e)
-      render_error(e.message, :not_found)
+      render_error_from_message(e.message, :not_found)
     end
 
-    def render_error(message, status)
-      render json: { error: { messages: message } }, status: status
+    def render_error_from_message(message, status)
+      api_error = ApiError.new(source: nil, details: [message])
+      render_error(ApiError.serialize([api_error]), status)
+    end
+
+    def render_error(error, status)
+      render json: error.to_json, status: status
     end
 
     def render_success(data = {}, status)

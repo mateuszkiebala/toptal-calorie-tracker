@@ -12,7 +12,7 @@ class FoodTest < ActiveSupport::TestCase
   end
 
   def formatted_now
-    @formatted_now ||= Time.now.utc.strftime('%Y-%m-%d %H:%M:%S')
+    @formatted_now ||= Time.now.iso8601(3)
   end
 
   test 'name is missing' do
@@ -198,7 +198,7 @@ class FoodTest < ActiveSupport::TestCase
 
     # then
     assert_not(food.save)
-    assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%d %H:%M:%S'"], food.errors.messages, :taken_at)
+    assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%dT%H:%M:%S'"], food.errors.messages, :taken_at)
   end
 
   test 'taken_at is a number' do
@@ -215,7 +215,7 @@ class FoodTest < ActiveSupport::TestCase
 
     # then
     assert_not(food.save)
-    assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%d %H:%M:%S'"], food.errors.messages, :taken_at)
+    assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%dT%H:%M:%S'"], food.errors.messages, :taken_at)
   end
 
   test 'taken_at is empty' do
@@ -231,7 +231,7 @@ class FoodTest < ActiveSupport::TestCase
 
     # then
     assert_not(food.save)
-    assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%d %H:%M:%S'"], food.errors.messages, :taken_at)
+    assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%dT%H:%M:%S'"], food.errors.messages, :taken_at)
   end
 
   test 'unique food per user - separate users' do

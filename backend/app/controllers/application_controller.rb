@@ -34,7 +34,7 @@ class ApplicationController < ActionController::API
       if command.success?
         render_success(command.result.to_json, command.status || :ok)
       else
-        render_error(command.get_errors.dig(:messages), command.status || :bad_request)
+        render_error(command.get_errors, command.status || :bad_request)
       end
     end
   end

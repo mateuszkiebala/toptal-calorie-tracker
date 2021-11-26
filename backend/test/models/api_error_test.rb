@@ -35,6 +35,25 @@ class ApiErrorTest < ActiveSupport::TestCase
     assert_nil(result)
   end
 
+  test 'serialization multiple errors - no source' do
+    # given
+    api_error_1 = ApiError.new(source: nil, details: %w[d1 d2])
+    api_error_2 = ApiError.new(source: nil, details: %w[d3])
+    api_error_3 = ApiError.new(source: nil, details: %w[])
+
+    api_errors = [api_error_1, api_error_2, api_error_3]
+
+    # when
+    result = ApiError.serialize(api_errors)
+
+    # then
+    expected = { :errors => [{
+                               :source => nil,
+                               :details => %w[d1 d2 d3]
+                             }]}
+    assert_equal(expected, result)
+  end
+
   test 'serialization single error' do
     # given
     api_errors = [ApiError.new(source: "test_key", details: %w[d1 d2])]
