@@ -7,6 +7,13 @@ module Api
 
       protected
 
+      def set_food
+        food_id = params.require(:id)
+        @food = Food.find_by(id: food_id)
+
+        raise ObjectNotFound.new("food with id='#{food_id}' does not exist") if @food.nil?
+      end
+
       def set_food_attributes
         data = @parsed_body['data']
 

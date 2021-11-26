@@ -17,7 +17,7 @@ module Base
       return self if @called
       @called = true
       yield if block_given?
-      execute
+      execute if self.valid?
       self
     end
 

@@ -6,7 +6,7 @@ Rails.application.routes.draw do
       resources :foods, only: [:create, :index]
 
       namespace :admin do
-        resources :foods, only: [:index]
+        resources :foods, only: [:update, :index]
       end
     end
   end

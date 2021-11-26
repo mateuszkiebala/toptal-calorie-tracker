@@ -2,18 +2,11 @@ module Foods
   class Create < Base::Auth
 
     PERMITTED_FOOD_FIELDS = [:name, :calorie_value, :taken_at].freeze
-
     FIELDS = [:food_attributes]
     attr_accessor *FIELDS
-
     validates :food_attributes, presence: true
 
-    def call
-      execute if self.valid?
-      self
-    end
-
-    private
+    protected
 
     def execute
       food = Food.new(prepare_data)

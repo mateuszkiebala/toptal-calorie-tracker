@@ -5,11 +5,13 @@ module ApiErrorHandling
     class AuthenticationError < StandardError; end
     class AuthorisationError < StandardError; end
     class RouteNotFoundError < StandardError; end
+    class ObjectNotFound < StandardError; end
 
     rescue_from Exception, :with => :handle_internal_server_error
     rescue_from StandardError, :with => :handle_internal_server_error
     rescue_from AuthenticationError, :with => :handle_authentication_error
     rescue_from AuthorisationError, :with => :handle_authorisation_error
+    rescue_from ObjectNotFound, :with => :handle_not_found
     rescue_from RouteNotFoundError, :with => :handle_route_not_found_error
     rescue_from JSON::ParserError, :with => :handle_json_parser_error
     rescue_from ActionController::ParameterMissing, with: :handle_internal_server_error

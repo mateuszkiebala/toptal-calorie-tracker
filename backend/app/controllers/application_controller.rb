@@ -56,11 +56,11 @@ class ApplicationController < ActionController::API
       end
     end
 
-    def render_jsonapi_success(data = {}, status)
+    def render_jsonapi_success(data, status)
       render jsonapi: data, status: status
     end
 
-    def render_jsonapi_errors(data = {}, status)
+    def render_jsonapi_errors(data, status)
       render jsonapi_errors: data, status: status
     end
   end
