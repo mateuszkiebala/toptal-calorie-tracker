@@ -1,5 +1,8 @@
 class ApplicationController < ActionController::API
   include ApiErrorHandling
+  include JSONAPI::Deserialization
+  include JSONAPI::Pagination
+  include JSONAPI::Filtering
 
   before_action :authenticate_request
   skip_before_action :authenticate_request, only: [:route_not_found]
@@ -38,7 +41,14 @@ class ApplicationController < ActionController::API
       end
     end
 
-    #def render_index(data_source)
+    def render_jsonapi_index(data_source, filter_allowed)
+      jsonapi_filter(data_source, filter_allowed) do |filtered|
+        jsonapi_paginate(filtered.result) do |paginated|
+          render jsonapi: paginated, status: :ok
+        end
+      end
+    end
+
     def render_jsonapi_success(data = {}, status)
       render jsonapi: data, status: status
     end

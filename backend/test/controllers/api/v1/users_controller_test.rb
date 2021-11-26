@@ -28,6 +28,9 @@ class UsersControllerTest < AuthenticationTest
           "username" => @user.username,
           "role" => @user.role
         }
+      },
+      "links" => {
+        "self" => "http://www.example.com/api/v1/my_profile"
       }
     }
     assert_equal(expected, response)

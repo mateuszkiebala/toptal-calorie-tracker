@@ -182,26 +182,98 @@ class FoodsControllerTest < AuthenticationTest
     assert_equal(expected, response["data"].except("id"))
   end
 
-  test 'success index' do
-    skip()
+  test 'index - invalid page number - use default number' do
     # given
-    # when
-    create(:food, taken_at: '2021-11-21T00:00:00')
-    create(:food, taken_at: '2021-11-22T00:00:00')
-    create(:food, taken_at: '2021-11-23T00:00:00')
-    create(:food, taken_at: '2021-11-24T00:00:00')
-    create(:food, taken_at: '2021-11-25T00:00:00')
-    create(:food, taken_at: '2021-11-26T00:00:00')
-    create(:food, taken_at: '2021-11-27T00:00:00')
+    create(:food, taken_at: '2021-11-21T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-22T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-23T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-24T00:00:00', user: @user)
+    food1 = create(:food, taken_at: '2021-11-25T00:00:00', user: @user)
+    food2 = create(:food, taken_at: '2021-11-26T00:00:00', user: @user)
+    food3 = create(:food, taken_at: '2021-11-27T00:00:00', user: @user)
 
-    #puts(Food.all.pluck(:taken_at))
-    #get "/api/v1/foods?page[number]=1&page[size]=3", headers: @headers
+    get "/api/v1/foods?page[number]=x&page[size]=3", headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    expected = [food3, food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
+    assert_equal(expected, response["data"].to_json)
+  end
+
+  test 'index - invalid page size - use default size' do
+    # given
+    food1 = create(:food, taken_at: '2021-11-25T00:00:00', user: @user)
+    food2 = create(:food, taken_at: '2021-11-26T00:00:00', user: @user)
+    food3 = create(:food, taken_at: '2021-11-27T00:00:00', user: @user)
+
+    get "/api/v1/foods?page[number]=1&page[size]=x**x", headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    expected = [food3, food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
+    assert_equal(expected, response["data"].to_json)
+  end
+
+  test 'success index - check filtering' do
+    # given
+    create(:food, taken_at: '2021-11-21T00:00:00', user: @user)
+    food1 = create(:food, taken_at: '2021-11-22T00:00:00', user: @user)
+    food2 = create(:food, taken_at: '2021-11-23T00:00:00', user: @user)
+    food3 = create(:food, taken_at: '2021-11-24T00:00:00', user: @user)
+    food4 = create(:food, taken_at: '2021-11-25T00:00:00', user: @user)
+    food5 = create(:food, taken_at: '2021-11-26T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-27T00:00:00', user: @user)
+
+    # when
+    get "/api/v1/foods?&filter[taken_at_gteq]='2021-11-22T00:00:00'&filter[taken_at_lteq]='2021-11-26T00:00:00'", headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    expected = [food5, food4, food3, food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
+    assert_equal(expected, response["data"].to_json)
+  end
+
+  test 'success index - check pagination' do
+    # given
+    create(:food, taken_at: '2021-11-21T00:00:00', user: @user)
+    food1 = create(:food, taken_at: '2021-11-22T00:00:00', user: @user)
+    food2 = create(:food, taken_at: '2021-11-23T00:00:00', user: @user)
+    food3 = create(:food, taken_at: '2021-11-24T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-25T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-26T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-27T00:00:00', user: @user)
+
+    get "/api/v1/foods?page[number]=2&page[size]=3", headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    expected = [food3, food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
+    assert_equal(expected, response["data"].to_json)
+
+    expected_next_link = 'http://www.example.com/api/v1/foods?page[number]=3&page[size]=3'
+    assert_equal(expected_next_link, response["links"]["next"])
+  end
+
+  test 'success index - check filtering and pagination' do
+    # given
+    create(:food, taken_at: '2021-11-21T00:00:00', user: @user)
+    food1 = create(:food, taken_at: '2021-11-22T00:00:00', user: @user)
+    food2 = create(:food, taken_at: '2021-11-23T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-24T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-25T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-26T00:00:00', user: @user)
+    create(:food, taken_at: '2021-11-27T00:00:00', user: @user)
+
     get "/api/v1/foods?page[number]=2&page[size]=3&filter[taken_at_gteq]='2021-11-22T00:00:00'&filter[taken_at_lteq]='2021-11-26T00:00:00'", headers: @headers
 
     # then
     assert_response :ok
     response = JSON.parse(@response.body)
-    expected = {"errors"=>[{"source"=>nil, "details"=>["'attributes' section is missing"]}]}
-    assert_equal(expected, response)
+    expected = [food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
+    assert_equal(expected, response["data"].to_json)
   end
 end
