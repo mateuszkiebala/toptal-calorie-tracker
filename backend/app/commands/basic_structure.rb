@@ -3,14 +3,15 @@ require 'active_model'
 class BasicStructure
   include ActiveModel::Model
 
-  attr_reader :result
+  attr_reader :result, :status
 
   def initialize(params)
     super(params)
     @succeeded = false
+    @status = :bad_request
     @result = {}
     @called = false
-    @error_codes = []
+    @api_errors = []
   end
 
   def call
@@ -26,10 +27,8 @@ class BasicStructure
   end
 
   def get_errors
-    {
-      messages: errors.full_messages,
-      codes: @error_codes.uniq
-    }.delete_if { |k, v| v.blank? } || {}
+    append_model_errors(self)
+    ApiError.serialize(@api_errors)
   end
 
   def success?
@@ -45,22 +44,14 @@ class BasicStructure
   end
 
   def append_model_errors(model)
-    model&.errors&.try(:each) do |k, v|
-      errors.add(k, v)
+    model&.errors&.messages&.try(:each) do |attribute, msg|
+      add_error(attribute: attribute, msg: msg)
     end
   end
 
-  def append_command_errors(command)
-    unless command.success?
-      errs = command.get_errors
-      errs.dig(:messages).each { |msg| errors.add(:base, msg) }
-      @error_codes += errs.dig(:codes)
-    end
-  end
-
-  def add_error(msg:, code:, field: :base)
-    errors.add(field, msg)
-    @error_codes << code
+  def add_error(attribute:, msg:)
+    api_error = ApiError.new(source: attribute, details: msg)
+    @api_errors.push(api_error)
     Rails.logger.warn msg
   end
 end

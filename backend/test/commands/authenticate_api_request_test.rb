@@ -21,6 +21,7 @@ class AuthenticateApiRequestTest < ActionController::TestCase
     # then
     assert(command.success?)
     assert(command.result)
+    assert_equal(:accepted, command.status)
   end
 
   test 'invalid_token' do
@@ -37,7 +38,9 @@ class AuthenticateApiRequestTest < ActionController::TestCase
 
     # then
     assert_not(command.success?)
-    assert_equal(Set.new(["Invalid token"]), Set.new(command.get_errors[:messages]))
+    expected = {:errors=>[{:source=>"auth_token", :details=>["Invalid token"]}]}
+    assert_equal(expected, command.get_errors)
+    assert_equal(:unauthorized, command.status)
   end
 
   test 'invalid_token mismatch user' do
@@ -54,7 +57,9 @@ class AuthenticateApiRequestTest < ActionController::TestCase
 
     # then
     assert_not(command.success?)
-    assert_equal(Set.new(["Invalid token"]), Set.new(command.get_errors[:messages]))
+    assert_equal(:unauthorized, command.status)
+    expected = { :errors => [{:source => "auth_token", :details => ["Invalid token"]}] }
+    assert_equal(expected, command.get_errors)
   end
 
   test 'missing_auth_header' do
@@ -66,7 +71,9 @@ class AuthenticateApiRequestTest < ActionController::TestCase
 
     # then
     assert_not(command.success?)
-    assert_equal(Set.new(["Missing authentication token", "Invalid token"]), Set.new(command.get_errors[:messages]))
+    assert_equal(:unauthorized, command.status)
+    expected = {:errors=>[{:source=>"auth_token", :details=>["Missing authentication token", "Invalid token"]}]}
+    assert_equal(expected, command.get_errors)
   end
 
   test 'empty_token' do
@@ -80,6 +87,8 @@ class AuthenticateApiRequestTest < ActionController::TestCase
 
     # then
     assert_not(command.success?)
-    assert_equal(Set.new(["Missing authentication token", "Invalid token"]), Set.new(command.get_errors[:messages]))
+    assert_equal(:unauthorized, command.status)
+    expected = {:errors=>[{:source=>"auth_token", :details=>["Missing authentication token", "Invalid token"]}]}
+    assert_equal(expected, command.get_errors)
   end
 end

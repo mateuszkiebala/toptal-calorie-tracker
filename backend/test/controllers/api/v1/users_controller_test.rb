@@ -23,7 +23,7 @@ class UsersControllerTest < AuthenticationTest
     expected = {
       "data" => {
         "id" => @user.id.to_s,
-        "type" => "user",
+        "type" => "users",
         "attributes" => {
           "username" => @user.username,
           "role" => @user.role

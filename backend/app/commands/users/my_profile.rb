@@ -7,6 +7,7 @@ module Users
 
     def execute
       @result = UserSerializer.new(@current_user).serializable_hash
+      @status = :ok
       @succeeded = true
     end
   end

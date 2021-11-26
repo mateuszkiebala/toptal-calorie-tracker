@@ -10,16 +10,19 @@ class AuthenticateApiRequest < BasicStructure
 
   def execute
     unless decoded_auth_token.present?
-      add_error(msg: 'Invalid token', code: 401)
+      @status = :unauthorized
+      add_error(attribute: 'auth_token', msg: 'Invalid token')
       return
     end
 
     user = User.find_by(id: decoded_auth_token[:user_id], auth_token: auth_token)
     if user.present?
       @succeeded = true
+      @status = :accepted
       @result = user
     else
-      add_error(msg: 'Invalid token', code: 401)
+      @status = :unauthorized
+      add_error(attribute: 'auth_token', msg: 'Invalid token')
     end
   end
 
@@ -37,7 +40,8 @@ class AuthenticateApiRequest < BasicStructure
     if @headers['Authorization'].present?
       return @headers['Authorization'].split(' ').last
     else
-      add_error(msg: 'Missing authentication token', code: 401)
+      @status = :unauthorized
+      add_error(attribute: 'auth_token', msg: 'Missing authentication token')
     end
     nil
   end

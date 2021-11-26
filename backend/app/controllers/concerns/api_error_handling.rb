@@ -1,18 +1,27 @@
-module ApiError
+module ApiErrorHandling
   extend ActiveSupport::Concern
 
   included do
     class AuthenticationError < StandardError; end
     class RouteNotFoundError < StandardError; end
 
-    rescue_from Exception, :with => :handle_bad_request
-    rescue_from StandardError, :with => :handle_bad_request
+    rescue_from Exception, :with => :handle_internal_server_error
+    rescue_from StandardError, :with => :handle_internal_server_error
     rescue_from AuthenticationError, :with => :handle_authentication_error
     rescue_from RouteNotFoundError, :with => :handle_route_not_found_error
     rescue_from JSON::ParserError, :with => :handle_json_parser_error
-    rescue_from ActionController::ParameterMissing, with: :handle_bad_request
+    rescue_from ActionController::ParameterMissing, with: :handle_internal_server_error
     rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
     rescue_from ActiveRecord::RecordInvalid, with: :handle_not_found
+
+    def handle_internal_server_error(ex)
+      if Rails.env.production? || Rails.env.test?
+        logger.error("Received a bad request (#{ex.message})")
+        render_error("Internal server error", :internal_server_error)
+      else
+        raise ex
+      end
+    end
 
     def handle_bad_request(e)
       render_error(e.message, :bad_request)
