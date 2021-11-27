@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 2021_11_25_181030) do
     t.string "name", null: false
     t.bigint "user_id"
     t.decimal "calorie_value", precision: 10, scale: 2, null: false
+    t.decimal "price", precision: 10, scale: 2, default: "0.0"
     t.datetime "taken_at", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -27,6 +28,8 @@ ActiveRecord::Schema.define(version: 2021_11_25_181030) do
     t.string "username", null: false
     t.string "auth_token"
     t.integer "role", default: 0, null: false
+    t.decimal "calorie_limit", precision: 15, scale: 2, default: "2100.0"
+    t.decimal "money_limit", precision: 15, scale: 2, default: "1000.0"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["auth_token"], name: "index_users_on_auth_token", unique: true

@@ -4,8 +4,11 @@ en:
       food:
         calorie_value: 'calorie_value'
         name: 'name'
+        price: 'price'
         taken_at: 'taken_at'
       user:
+        calorie_limit: 'calorie_limit'
+        money_limit: 'money_limit'
         role: 'role'
         username: 'username'
     errors:

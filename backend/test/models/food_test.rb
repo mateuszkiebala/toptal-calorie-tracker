@@ -234,6 +234,38 @@ class FoodTest < ActiveSupport::TestCase
     assert_validation_errors(["can't be blank", "is not a datetime of format '%Y-%m-%dT%H:%M:%S'"], food.errors.messages, :taken_at)
   end
 
+  test 'price negative' do
+    # given
+    food = create(:food)
+
+    # when
+    food.price = -123.3
+
+    # then
+    assert_not(food.save)
+    assert_equal(["'price' must be greater than or equal to 0"], food.errors.full_messages)
+  end
+
+  test 'price is a text' do
+    # given
+    food = create(:food)
+
+    # when
+    food.price = "test hack"
+
+    # then
+    assert_not(food.save)
+    assert_equal(["'price' is not a number"], food.errors.full_messages)
+  end
+
+  test 'price default is 0' do
+    # given, when
+    food = create(:food)
+
+    # then
+    assert_equal(0, food.price)
+  end
+
   test 'unique food per user - separate users' do
     # given
     data = {

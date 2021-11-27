@@ -30,4 +30,44 @@ class UserTest < ActiveSupport::TestCase
     assert_nil(User.find_by(id: user.id))
     assert_empty(Food.where(id: [food_1.id, food_2.id]))
   end
+
+  test 'invalid calorie_limit' do
+    # given
+    user = User.generate_random
+
+    # when
+    user.calorie_limit = -0.9
+
+    # then
+    assert_not(user.save)
+    assert_equal(["'calorie_limit' must be greater than or equal to 0"], user.errors.full_messages)
+  end
+
+  test 'calorie_limit default' do
+    # given, when
+    user = create(:user)
+
+    # then
+    assert_equal(2100.0, user.calorie_limit)
+  end
+
+  test 'invalid money_limit' do
+    # given
+    user = User.generate_random
+
+    user.money_limit = -0.9
+    # when
+
+    # then
+    assert_not(user.save)
+    assert_equal(["'money_limit' must be greater than or equal to 0"], user.errors.full_messages)
+  end
+
+  test 'money_limit default' do
+    # given, when
+    user = create(:user)
+
+    # then
+    assert_equal(1000.0, user.money_limit)
+  end
 end
