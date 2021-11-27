@@ -8,7 +8,7 @@ module Foods
 
     def execute
       attributes = { entries_count: entries_count }
-      fs = FoodGlobalStatistics.new(attributes)
+      fs = Models::GlobalStatistics.new(attributes)
       fs.valid? ? set_result(fs, :ok) : set_errors(fs.errors)
     end
 

@@ -8,7 +8,7 @@ module Foods
 
     def execute
       attributes = { average_calories: average_calories }
-      fs = FoodUserStatistics.new(attributes)
+      fs = Models::UserStatistics.new(attributes)
       fs.valid? ? set_result(fs, :ok) : set_errors(fs.errors)
     end
 
@@ -18,7 +18,7 @@ module Foods
           user_id: user_id,
           value: (foods.inject(0.0) { |sum, food| sum + food.calorie_value }) / foods.length
         }
-        FoodUserStatistics::Stat.new(attrs)
+        Models::UserStatistics::Stat.new(attrs)
       end.sort_by(&:user_id)
     end
   end

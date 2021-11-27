@@ -184,6 +184,16 @@ class FoodsControllerTest < AuthenticationTest
     assert_equal(expected, response["data"].except("id"))
   end
 
+  test 'fail index - request must be authenticated' do
+    # given
+    @headers = {
+      CONTENT_TYPE: "application/json"
+    }
+
+    # when, then
+    assert_unauthenticated(:get, "/api/v1/foods")
+  end
+
   test 'index - invalid page number - use default number' do
     # given
     create(:food, taken_at: '2021-11-21T00:00:00', user: @user)
@@ -297,5 +307,67 @@ class FoodsControllerTest < AuthenticationTest
     response = JSON.parse(@response.body)
     expected = [food3, food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
     assert_equal(expected, response["data"].to_json)
+  end
+
+  test 'fail calorie_statistics - request must be authenticated' do
+    # given
+    @headers = {
+      CONTENT_TYPE: "application/json"
+    }
+
+    # when, then
+    assert_unauthenticated(:get, "/api/v1/foods/calorie_statistics")
+  end
+
+  test 'calorie_statistics success - empty' do
+    # given, when
+    get "/api/v1/foods/calorie_statistics", params: {}, headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    assert_equal("food_calorie_statistics", response["data"]["type"])
+    assert_empty(response["data"]["attributes"]["daily"])
+  end
+
+  test 'calorie_statistics success - no filter' do
+    # given
+    user1 = create(:user)
+    user2 = create(:user)
+    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 12, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 13, user: user1)
+    create(:food, taken_at: "2021-11-24 11:29:00", calorie_value: 15, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 14, user: user2)
+
+    # when
+    get "/api/v1/foods/calorie_statistics", params: {}, headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    assert_equal("food_calorie_statistics", response["data"]["type"])
+    expected = {"daily"=>[{"day"=>"2021-11-23", "sum"=>"12.0"}, {"day"=>"2021-11-24", "sum"=>"15.0"}]}
+    assert_equal(expected, response["data"]["attributes"])
+  end
+
+  test 'calorie_statistics success - with filters - one day' do
+    # given
+    user1 = create(:user)
+    user2 = create(:user)
+    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 12, user: @user)
+    create(:food, taken_at: "2021-11-23 23:59:59", calorie_value: 99, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 13, user: user1)
+    create(:food, taken_at: "2021-11-24 11:29:00", calorie_value: 15, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 14, user: user2)
+
+    # when
+    get "/api/v1/foods/calorie_statistics?filter[taken_at_gteq]='2021-11-23T00:00:00'&filter[taken_at_lteq]='2021-11-23T23:59:59'", params: {}, headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    assert_equal("food_calorie_statistics", response["data"]["type"])
+    expected = {"daily"=>[{"day"=>"2021-11-23", "sum"=>"111.0"}]}
+    assert_equal(expected, response["data"]["attributes"])
   end
 end
