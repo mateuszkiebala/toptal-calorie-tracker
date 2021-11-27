@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
       resources :foods, only: [:create, :index] do
         collection do
-          get 'calorie_statistics'
+          get 'daily_statistics'
         end
       end
 

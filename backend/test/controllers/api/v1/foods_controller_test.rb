@@ -309,65 +309,66 @@ class FoodsControllerTest < AuthenticationTest
     assert_equal(expected, response["data"].to_json)
   end
 
-  test 'fail calorie_statistics - request must be authenticated' do
+  test 'fail daily_statistics - request must be authenticated' do
     # given
     @headers = {
       CONTENT_TYPE: "application/json"
     }
 
     # when, then
-    assert_unauthenticated(:get, "/api/v1/foods/calorie_statistics")
+    assert_unauthenticated(:get, "/api/v1/foods/daily_statistics")
   end
 
-  test 'calorie_statistics success - empty' do
+  test 'daily_statistics success - empty' do
     # given, when
-    get "/api/v1/foods/calorie_statistics", params: {}, headers: @headers
+    get "/api/v1/foods/daily_statistics", params: {}, headers: @headers
 
     # then
     assert_response :ok
     response = JSON.parse(@response.body)
-    assert_equal("food_calorie_statistics", response["data"]["type"])
-    assert_empty(response["data"]["attributes"]["daily"])
+    assert_equal("food_daily_statistics", response["data"]["type"])
+    assert_empty(response["data"]["attributes"]["values"])
   end
 
-  test 'calorie_statistics success - no filter' do
+  test 'daily_statistics success - no filter' do
     # given
     user1 = create(:user)
     user2 = create(:user)
-    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 12, user: @user)
-    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 13, user: user1)
-    create(:food, taken_at: "2021-11-24 11:29:00", calorie_value: 15, user: @user)
-    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 14, user: user2)
+    create(:food, taken_at: "2021-11-23 11:29:00", price: 1200.99, calorie_value: 12, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", price: 1300.99, calorie_value: 13, user: user1)
+    create(:food, taken_at: "2021-11-24 11:29:00", price: 1400.99, calorie_value: 15, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", price: 1500.99, calorie_value: 14, user: user2)
 
     # when
-    get "/api/v1/foods/calorie_statistics", params: {}, headers: @headers
+    get "/api/v1/foods/daily_statistics", params: {}, headers: @headers
 
     # then
     assert_response :ok
     response = JSON.parse(@response.body)
-    assert_equal("food_calorie_statistics", response["data"]["type"])
-    expected = {"daily"=>[{"day"=>"2021-11-23", "sum"=>"12.0"}, {"day"=>"2021-11-24", "sum"=>"15.0"}]}
+    assert_equal("food_daily_statistics", response["data"]["type"])
+    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"12.0", "price_sum"=>"1200.99"},
+                          {"day"=>"2021-11-24", "calorie_sum"=>"15.0", "price_sum"=>"1400.99"}]}
     assert_equal(expected, response["data"]["attributes"])
   end
 
-  test 'calorie_statistics success - with filters - one day' do
+  test 'daily_statistics success - with filters - one day' do
     # given
     user1 = create(:user)
     user2 = create(:user)
-    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 12, user: @user)
-    create(:food, taken_at: "2021-11-23 23:59:59", calorie_value: 99, user: @user)
-    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 13, user: user1)
-    create(:food, taken_at: "2021-11-24 11:29:00", calorie_value: 15, user: @user)
-    create(:food, taken_at: "2021-11-23 11:29:00", calorie_value: 14, user: user2)
+    create(:food, taken_at: "2021-11-23 11:29:00", price: 1200.99, calorie_value: 12, user: @user)
+    create(:food, taken_at: "2021-11-23 23:59:59", price: 1300.99, calorie_value: 99, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", price: 1400.99, calorie_value: 13, user: user1)
+    create(:food, taken_at: "2021-11-24 11:29:00", price: 1500.99, calorie_value: 15, user: @user)
+    create(:food, taken_at: "2021-11-23 11:29:00", price: 1600.99, calorie_value: 14, user: user2)
 
     # when
-    get "/api/v1/foods/calorie_statistics?filter[taken_at_gteq]='2021-11-23T00:00:00'&filter[taken_at_lteq]='2021-11-23T23:59:59'", params: {}, headers: @headers
+    get "/api/v1/foods/daily_statistics?filter[taken_at_gteq]='2021-11-23T00:00:00'&filter[taken_at_lteq]='2021-11-23T23:59:59'", params: {}, headers: @headers
 
     # then
     assert_response :ok
     response = JSON.parse(@response.body)
-    assert_equal("food_calorie_statistics", response["data"]["type"])
-    expected = {"daily"=>[{"day"=>"2021-11-23", "sum"=>"111.0"}]}
+    assert_equal("food_daily_statistics", response["data"]["type"])
+    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"111.0", "price_sum"=>"2501.98"}]}
     assert_equal(expected, response["data"]["attributes"])
   end
 end
