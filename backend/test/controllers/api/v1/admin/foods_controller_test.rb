@@ -180,12 +180,11 @@ module Admin
     test 'update success' do
       # given
       food = create(:food, name: "old", calorie_value: 123)
-      new_calorie = 8982.23
       params = {
         data: {
           type: "foods",
           attributes: {
-            calorie_value: new_calorie
+            calorie_value: 8982.23
           }
         }
       }
@@ -197,8 +196,33 @@ module Admin
       assert_response :no_content
       assert_empty(@response.body)
       food.reload
-      assert_equal(BigDecimal(new_calorie, 10).to_s('F'), food.calorie_value.to_s('F'))
+      assert_equal('8982.23', food.calorie_value.to_s('F'))
       assert_equal("old", food.name)
+      assert_equal('0.0', food.price.to_s('F'))
+    end
+
+    test 'update success - only price' do
+      # given
+      food = create(:food, name: "old", calorie_value: 123)
+      params = {
+        data: {
+          type: "foods",
+          attributes: {
+            price: 128.99
+          }
+        }
+      }
+
+      # when
+      patch "/api/v1/admin/foods/#{food.id}", params: params.to_json, headers: @headers
+
+      # then
+      assert_response :no_content
+      assert_empty(@response.body)
+      food.reload
+      assert_equal('128.99', food.price.to_s('F'))
+      assert_equal("old", food.name)
+      assert_equal('123.0', food.calorie_value.to_s('F'))
     end
 
     test 'delete fail - unauthorised regular user' do

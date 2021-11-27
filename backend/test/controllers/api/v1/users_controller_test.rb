@@ -26,7 +26,9 @@ class UsersControllerTest < AuthenticationTest
         "type" => "users",
         "attributes" => {
           "username" => @user.username,
-          "role" => @user.role
+          "role" => @user.role,
+          "calorie_limit" => "2100.0",
+          "money_limit" => "1000.0"
         }
       },
       "links" => {

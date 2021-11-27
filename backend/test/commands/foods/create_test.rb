@@ -91,7 +91,8 @@ class Foods::CreateTest < BaseTest
     options = {
       name: "test name",
       calorie_value: 14.23,
-      taken_at: now
+      taken_at: now,
+      price: 19.32
     }
 
     # when
@@ -106,7 +107,8 @@ class Foods::CreateTest < BaseTest
         :attributes => {
           :name => "test name",
           :calorie_value => "14.23",
-          :taken_at => now.strftime("%Y-%m-%dT%H:%M:%S")
+          :taken_at => now.strftime("%Y-%m-%dT%H:%M:%S"),
+          :price => "19.32"
         },
         :relationships => {
           :user => {

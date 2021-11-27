@@ -9,6 +9,10 @@ class FoodSerializer
     object.calorie_value.to_s('F')
   end
 
+  attribute :price do |object|
+    object.price.to_s('F')
+  end
+
   attribute :taken_at do |object|
     object.taken_at.strftime("%Y-%m-%dT%H:%M:%S")
   end

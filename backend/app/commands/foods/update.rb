@@ -1,7 +1,7 @@
 module Foods
   class Update < Base::Auth
 
-    PERMITTED_FOOD_FIELDS = [:name, :calorie_value, :taken_at].freeze
+    PERMITTED_FOOD_FIELDS = [:name, :calorie_value, :taken_at, :price].freeze
     FIELDS = [:food, :food_attributes]
     attr_accessor *FIELDS
     validates :food_attributes, :food, presence: true

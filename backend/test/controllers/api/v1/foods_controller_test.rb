@@ -153,7 +153,8 @@ class FoodsControllerTest < AuthenticationTest
         attributes: {
           name: "test food name",
           calorie_value: 123.8388,
-          taken_at: now.iso8601
+          taken_at: now.iso8601,
+          price: "12344"
         }
       }
     }
@@ -168,7 +169,8 @@ class FoodsControllerTest < AuthenticationTest
       "attributes" => {
         "name" => "test food name",
         "calorie_value" => "123.84",
-        "taken_at" => now.strftime("%Y-%m-%dT%H:%M:%S")
+        "taken_at" => now.strftime("%Y-%m-%dT%H:%M:%S"),
+        "price" => "12344.0"
       },
       "relationships" => {
         "user" => {
