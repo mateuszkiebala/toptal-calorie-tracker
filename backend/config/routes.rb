@@ -6,7 +6,12 @@ Rails.application.routes.draw do
       resources :foods, only: [:create, :index]
 
       namespace :admin do
-        resources :foods, only: [:update, :index, :destroy]
+        resources :foods, only: [:update, :index, :destroy] do
+          collection do
+            get 'user_statistics', to: 'foods#user_statistics'
+            get 'global_statistics', to: 'foods#global_statistics'
+          end
+        end
       end
     end
   end

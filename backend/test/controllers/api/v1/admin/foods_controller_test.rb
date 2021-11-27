@@ -202,7 +202,7 @@ module Admin
     end
 
     test 'delete fail - unauthorised regular user' do
-      assert_unauthenticated('delete', '/api/v1/admin/foods/123')
+      assert_unauthorised('delete', '/api/v1/admin/foods/123')
     end
 
     test 'delete fail - food not found' do
@@ -229,15 +229,153 @@ module Admin
       assert_nil(Food.find_by(id: food.id))
     end
 
-    def assert_unauthenticated(request_type, path)
-      # given when
-      self.send(request_type, path)
+    test 'user_statistics not authorise' do
+      assert_unauthorised('get', '/api/v1/admin/foods/user_statistics')
+    end
+
+    test 'user_statistics success - empty' do
+      # given, when
+      get "/api/v1/admin/foods/user_statistics", params: {}, headers: @headers
 
       # then
-      assert_response :unauthorized
+      assert_response :ok
       response = JSON.parse(@response.body)
-      expected = {"errors"=>[{"status"=>401, "detail"=>"Not Authenticated", "source"=>nil, "title"=>"Unauthorized", "code"=>nil}]}
-      assert_equal(expected, response)
+      assert_equal("food_user_statistics", response["data"]["type"])
+      expected_stats = {"average_calories"=>[]}
+      assert_equal(expected_stats, response["data"]["attributes"])
+    end
+
+    test 'user statistics success - without filters' do
+      # given
+      food1 = create(:food, calorie_value: 12)
+      food2 = create(:food, calorie_value: 15)
+
+      # when
+      get "/api/v1/admin/foods/user_statistics", params: {}, headers: @headers
+
+      # then
+      assert_response :ok
+      response = JSON.parse(@response.body)
+      assert_equal("food_user_statistics", response["data"]["type"])
+      expected_stats = {"average_calories"=>[{"user_id"=>food1.user_id, "value"=>"12.0"}, {"user_id"=>food2.user_id, "value"=>"15.0"}]}
+      assert_equal(expected_stats, response["data"]["attributes"])
+    end
+
+    test 'user_statistics success - pagination with filters' do
+      # given
+      user1 = create(:user, username: "1")
+      user2 = create(:user, username: "2")
+      user3 = create(:user, username: "3")
+      user4 = create(:user, username: "4")
+      user5 = create(:user, username: "5")
+      create(:food, user: user1, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
+      create(:food, user: user2, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
+      create(:food, user: user3, calorie_value: 15, taken_at: "2021-11-20 00:00:00" )
+      create(:food, user: user3, calorie_value: 17, taken_at: "2021-11-21 00:00:00" )
+      create(:food, user: user3, calorie_value: 20, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 500, taken_at: "2021-11-21 00:00:00" )
+      create(:food, user: user4, calorie_value: 21, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 160, taken_at: "2021-11-25 00:00:00" )
+      create(:food, user: user5, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
+
+      # when
+      get "/api/v1/admin/foods/user_statistics?page[number]=2&page[size]=2&filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'", params: {}, headers: @headers
+
+      # then
+      assert_response :ok
+      response = JSON.parse(@response.body)
+      assert_equal("food_user_statistics", response["data"]["type"])
+      expected_stats = {"average_calories"=>[{"user_id"=>user3.id, "value"=>"18.5"}, {"user_id"=>user4.id, "value"=>"180.25"}]}
+      assert_equal(expected_stats, response["data"]["attributes"])
+
+      expected_next_link = "http://www.example.com/api/v1/admin/foods/user_statistics?filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'&page[number]=3&page[size]=2"
+      assert_equal(expected_next_link, response["links"]["next"])
+    end
+
+    test 'global_statistics not authorise' do
+      assert_unauthorised('get', '/api/v1/admin/foods/global_statistics')
+    end
+
+    test 'global_statistics success - empty' do
+      # given, when
+      get "/api/v1/admin/foods/global_statistics", params: {}, headers: @headers
+
+      # then
+      assert_response :ok
+      response = JSON.parse(@response.body)
+      assert_equal("food_global_statistics", response["data"]["type"])
+      expected_stats = {"entries_count"=>0}
+      assert_equal(expected_stats, response["data"]["attributes"])
+    end
+
+    test 'global_statistics success - without filters' do
+      # given
+      create(:food, calorie_value: 12)
+      create(:food, calorie_value: 15)
+
+      # when
+      get "/api/v1/admin/foods/global_statistics", params: {}, headers: @headers
+
+      # then
+      assert_response :ok
+      response = JSON.parse(@response.body)
+      assert_equal("food_global_statistics", response["data"]["type"])
+      expected_stats = {"entries_count"=>2}
+      assert_equal(expected_stats, response["data"]["attributes"])
+    end
+
+    test 'global_statistics success - filtered - do not use strange filters' do
+      # given
+      user1 = create(:user, username: "1")
+      user2 = create(:user, username: "2")
+      user3 = create(:user, username: "3")
+      create(:food, user: user1, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
+      create(:food, user: user2, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
+      create(:food, user: user3, calorie_value: 15, taken_at: "2021-11-20 00:00:00" )
+      create(:food, user: user3, calorie_value: 17, taken_at: "2021-11-21 00:00:00" )
+      create(:food, user: user3, calorie_value: 20, taken_at: "2021-11-22 00:00:00" )
+
+      # when
+      get "/api/v1/admin/foods/global_statistics?filter[calorie_value_gteq]=13&filter[calorie_value_lteq]=17", params: {}, headers: @headers
+
+      # then
+      assert_response :ok
+      response = JSON.parse(@response.body)
+      assert_equal("food_global_statistics", response["data"]["type"])
+      expected_stats = {"entries_count"=>5}
+      assert_equal(expected_stats, response["data"]["attributes"])
+    end
+
+    test 'global_statistics success - filtered' do
+      # given
+      user1 = create(:user, username: "1")
+      user2 = create(:user, username: "2")
+      user3 = create(:user, username: "3")
+      user4 = create(:user, username: "4")
+      user5 = create(:user, username: "5")
+      create(:food, user: user1, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
+      create(:food, user: user2, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
+      create(:food, user: user3, calorie_value: 15, taken_at: "2021-11-20 00:00:00" )
+      create(:food, user: user3, calorie_value: 17, taken_at: "2021-11-21 00:00:00" )
+      create(:food, user: user3, calorie_value: 20, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 500, taken_at: "2021-11-21 00:00:00" )
+      create(:food, user: user4, calorie_value: 21, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
+      create(:food, user: user4, calorie_value: 160, taken_at: "2021-11-25 00:00:00" )
+      create(:food, user: user5, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
+
+      # when
+      get "/api/v1/admin/foods/global_statistics?filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'", params: {}, headers: @headers
+
+      # then
+      assert_response :ok
+      response = JSON.parse(@response.body)
+      assert_equal("food_global_statistics", response["data"]["type"])
+      expected_stats = {"entries_count"=>7}
+      assert_equal(expected_stats, response["data"]["attributes"])
     end
 
     def assert_unauthorised(request_type, path)

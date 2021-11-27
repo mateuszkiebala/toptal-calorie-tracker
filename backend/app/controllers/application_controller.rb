@@ -39,12 +39,12 @@ class ApplicationController < ActionController::API
       @parsed_body
     end
 
-    def handle_command(command_model, data)
+    def handle_command(command_model, data, options={})
       command = command_model.new(data).call
       if command.success?
-        render_jsonapi_success(command.result, command.status || :ok)
+        render_jsonapi_success(command.result, command.status || :ok, options)
       else
-        render_jsonapi_errors(command.get_errors, command.status || :bad_request)
+        render_jsonapi_errors(command.get_errors, command.status || :bad_request, options)
       end
     end
 
@@ -56,12 +56,12 @@ class ApplicationController < ActionController::API
       end
     end
 
-    def render_jsonapi_success(data, status)
-      render jsonapi: data, status: status
+    def render_jsonapi_success(data, status, options={})
+      render jsonapi: data, status: status, **options
     end
 
-    def render_jsonapi_errors(data, status)
-      render jsonapi_errors: data, status: status
+    def render_jsonapi_errors(data, status, options={})
+      render jsonapi_errors: data, status: status, **options
     end
   end
 end

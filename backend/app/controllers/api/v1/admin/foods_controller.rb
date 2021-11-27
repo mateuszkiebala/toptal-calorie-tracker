@@ -31,6 +31,32 @@ module Api
           }
           handle_command(Foods::Destroy, data)
         end
+
+        # GET /api/v1/admin/foods/user_statistics
+        def user_statistics
+          pagination_data_source = User.order(username: :asc)
+          links = jsonapi_pagination(pagination_data_source)
+
+          jsonapi_paginate(pagination_data_source) do |paginated|
+            render_jsonapi_success(nil, :ok) if paginated.blank?
+
+            users_to_fetch = paginated.pluck(:id)
+            filter_data_source = Food.where(user_id: users_to_fetch).order(taken_at: :desc)
+            allowed = [:taken_at]
+            jsonapi_filter(filter_data_source, allowed) do |filtered|
+              handle_command(Foods::UserStatistics, { data_source: filtered.result }, { links: links })
+            end
+          end
+        end
+
+        # GET /api/v1/admin/foods/global_statistics
+        def global_statistics
+          filter_data_source = Food.all.order(taken_at: :desc)
+          allowed = [:taken_at]
+          jsonapi_filter(filter_data_source, allowed) do |filtered|
+            handle_command(Foods::GlobalStatistics, { data_source: filtered.result })
+          end
+        end
       end
     end
   end
