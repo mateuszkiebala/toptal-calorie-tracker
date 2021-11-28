@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Authentication from '@/components/Authentication'
 import Dashboard from '@/components/Dashboard'
 import AdminDashboard from '@/components/admin/AdminDashboard'
+import Report from '@/components/admin/Report'
 import Form from '@/components/foods/Form'
 
 Vue.use(Router)
@@ -33,6 +34,11 @@ export default new Router({
       path: '/foods/edit/:id',
       name: 'FoodEdit',
       component: Form
+    },
+    {
+      path: '/admin/report',
+      name: 'Report',
+      component: Report
     }
   ]
 })

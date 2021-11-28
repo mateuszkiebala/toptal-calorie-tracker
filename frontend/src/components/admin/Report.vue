@@ -1,10 +1,5 @@
 <template>
   <div class="container">
-    <date-range-picker
-      v-model="dateRange"
-      @update="refreshTable"
-    ></date-range-picker>
-
     <b-container fluid>
       <!-- User Interface controls -->
       <b-row>
@@ -42,9 +37,9 @@
 
       <!-- Main table element -->
       <b-table
-        id="foods-list"
+        id="report-list"
         :busy.sync="isBusy"
-        :items="fetchData"
+        :items="fetchUserStatistics"
         :fields="fields"
         :current-page="currentPage"
         :per-page="perPage"
@@ -54,11 +49,6 @@
       >
         <template #cell(name)="row">
           {{ row.value.first }} {{ row.value.last }}
-        </template>
-
-        <template v-if="isAdmin()" #cell(actions)="row">
-          <i class="clickable fas fa-trash-alt mr-1" @click="removeFood(row.item, row.index, $event.target)"></i>
-          <i class="clickable fas fa-edit mr-1" @click="updateFood(row.item, row.index, $event.target)"></i>
         </template>
 
         <template #row-details="row">
@@ -74,52 +64,47 @@
 </template>
 
 <script>
-import DateRangePicker from 'vue2-daterange-picker'
-import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 import moment from 'moment'
 
 export default {
-  name: 'List',
+  name: 'Report',
   data () {
     return {
       error: '',
-      dateRange: {
-        startDate: null,
-        endDate: null
-      },
       isBusy: false,
       fields: [
-        { key: 'id', label: 'ID' },
-        { key: 'food_name', label: 'Name' },
-        { key: 'calorie_value', label: 'Calories' },
-        { key: 'price', label: 'Price' },
-        { key: 'taken_at', label: 'Taken at' },
-        { key: 'actions', label: '' }
+        { key: 'user_id', label: 'User ID' },
+        { key: 'average_calorie_value', label: 'Average calories for last 7 days' }
       ],
       totalRows: 0,
       currentPage: 1,
       perPage: 10,
-      pageOptions: [5, 10, 15, { value: 100, text: 'Show a lot' }]
+      pageOptions: [5, 10, 15, { value: 100, text: 'Show a lot' }],
+      global_statistics: {
+        current: 0,
+        previous: 0
+      }
     }
   },
   created () {
-    let now = moment()
-    this.dateRange.startDate = now.startOf('day').toISOString()
-    this.dateRange.endDate = now.endOf('day').toISOString()
+    let startDate = moment().subtract(7, 'd').startOf('day').toISOString()
+    let endDate = moment().endOf('day').toISOString()
+    this.setGlobalStatistics(this.global_statistics.current, startDate, endDate)
+
+    startDate = moment().subtract(14, 'd').startOf('day').toISOString()
+    endDate = moment().subtract(8, 'd').startOf('day').toISOString()
+    this.setGlobalStatistics(this.global_statistics.previous, startDate, endDate)
   },
   methods: {
     setError (error, text) {
       this.error = (error.response.errors[0] && error.response.errors[0].detail) || text
     },
-    refreshTable (event) {
-      this.$root.$emit('bv::refresh::table', 'foods-list')
-    },
-    fetchData (ctx) {
-      if (!this.$store.getters.signedIn) {
+    fetchUserStatistics (ctx) {
+      if (!this.$store.getters.signedIn || !this.isAdmin()) {
         this.$router.replace('/')
       } else {
-        let startDate = this.dateRange.startDate
-        let endDate = this.dateRange.endDate
+        let startDate = moment().subtract(7, 'd').startOf('day').toISOString()
+        let endDate = moment().endOf('day').toISOString()
         let params = {
           'page[number]': this.currentPage,
           'page[size]': this.perPage,
@@ -127,11 +112,14 @@ export default {
           'filter[taken_at_lteq]': endDate
         }
 
-        let promise = this.plain.get('/foods', {params})
+        let promise = this.plain.get('/admin/foods/user_statistics', { params })
         return promise.then(response => {
           this.totalRows = response.data.meta.records
-          return response.data.data.map(function (food) {
-            return Object.assign({}, food.attributes, {id: food.id, food_name: food.attributes.name})
+          return response.data.data.attributes.average_calories.map(function (stats) {
+            return {
+              user_id: stats.user_id,
+              average_calorie_value: stats.value
+            }
           })
         }).catch(error => {
           this.setError(error, 'Something went wrong')
@@ -139,36 +127,26 @@ export default {
         })
       }
     },
-    removeFood (item, index, button) {
-      if (!this.isAdmin()) {
-        return null
-      }
+    setGlobalStatistics (dst, startDate, endDate) {
+      if (!this.$store.getters.signedIn || !this.isAdmin()) {
+        this.$router.replace('/')
+      } else {
+        let params = {
+          'filter[taken_at_gteq]': startDate,
+          'filter[taken_at_lteq]': endDate
+        }
 
-      if (confirm(`Do you really want to delete food: ID: ${item.id}, Name ${item.name}?`)) {
-        this.plain.delete(`/admin/foods/${item.id}`)
+        this.plain.get('/admin/foods/global_statistics', { params })
           .then(response => {
-            this.refreshTable()
+            dst = response.data.data.attributes.entries_count
           }).catch(error => {
             this.setError(error, 'Something went wrong')
-            return []
           })
-      }
-    },
-    updateFood (item, index, button) {
-      if (this.isAdmin()) {
-        this.$router.replace(`/foods/edit/${item.id}`)
       }
     },
     isAdmin () {
       return this.$store.getters.isAdmin
     }
-  },
-  components: { DateRangePicker }
+  }
 }
 </script>
-
-<style land="css">
-  .clickable {
-    cursor: pointer
-  }
-</style>

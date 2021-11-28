@@ -10,6 +10,9 @@
     </ul>
     <ul class="navbar ml-auto">
       <li class="nav-item" v-if="showAdminLink()">
+        <router-link class="nav-link" to="/admin/report">Reports</router-link>
+      </li>
+      <li class="nav-item" v-if="showAdminLink()">
         <router-link class="nav-link" to="/admin/dashboard">Admin</router-link>
       </li>
       <li class="nav-item sign-out">
