@@ -7,7 +7,7 @@
     </ul>
     <ul class="navbar ml-auto">
       <li class="nav-item" v-if="showAdminLink()">
-        <router-link class="nav-link" to="/admin/foods">Admin</router-link>
+        <router-link class="nav-link" to="/admin/dashboard">Admin</router-link>
       </li>
       <li class="nav-item sign-out">
         <a class="nav-link" @click="signOut">Sign out</a>

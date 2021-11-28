@@ -2,7 +2,7 @@
   <div class="container">
     <date-range-picker
       v-model="dateRange"
-      @update="updateDateRange"
+      @update="refreshTable"
     ></date-range-picker>
 
     <b-container fluid>
@@ -56,6 +56,11 @@
           {{ row.value.first }} {{ row.value.last }}
         </template>
 
+        <template v-if="isAdmin()" #cell(actions)="row">
+          <i class="fas fa-trash-alt mr-1" @click="removeFood(row.item, row.index, $event.target)"></i>
+          <i class="fas fa-edit mr-1" @click="updateFood(row.item, row.index, $event.target)"></i>
+        </template>
+
         <template #row-details="row">
           <b-card>
             <ul>
@@ -88,7 +93,8 @@ export default {
         { key: 'food_name', label: 'Name' },
         { key: 'calorie_value', label: 'Calories' },
         { key: 'price', label: 'Price' },
-        { key: 'taken_at', label: 'Taken at' }
+        { key: 'taken_at', label: 'Taken at' },
+        { key: 'actions', label: '' }
       ],
       totalRows: 0,
       currentPage: 1,
@@ -105,7 +111,7 @@ export default {
     setError (error, text) {
       this.error = (error.response.errors[0] && error.response.errors[0].detail) || text
     },
-    updateDateRange (event) {
+    refreshTable (event) {
       this.$root.$emit('bv::refresh::table', 'foods-list')
     },
     fetchData (ctx) {
@@ -132,6 +138,29 @@ export default {
           return []
         })
       }
+    },
+    removeFood (item, index, button) {
+      if (!this.isAdmin()) {
+        return null
+      }
+
+      if (confirm(`Do you really want to delete food: ID: ${item.id}, Name ${item.name}?`)) {
+        this.plain.delete(`/admin/foods/${item.id}`)
+          .then(response => {
+            this.refreshTable()
+          }).catch(error => {
+            this.setError(error, 'Something went wrong')
+            return []
+          })
+      }
+    },
+    updateFood (item, index, button) {
+      if (!this.isAdmin()) {
+        return null
+      }
+    },
+    isAdmin () {
+      return this.$store.getters.isAdmin
     }
   },
   components: { DateRangePicker }
@@ -139,15 +168,4 @@ export default {
 </script>
 
 <style lang="css">
-  @import '../../assets/styles/vue-formulate.css';
-  .foods ul li i.fa.fa-trash-alt {
-    visibility: hidden;
-    margin-top: 5px;
-  }
-  .foods ul li:hover {
-    background: #fcfcfc;
-  }
-  .foods ul li:hover i.fa.fa-trash-alt {
-    visibility: visible;
-  }
 </style>

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Authentication from '@/components/Authentication'
 import Dashboard from '@/components/Dashboard'
-import AdminFoodList from '@/components/admin/foods/List'
+import AdminDashboard from '@/components/admin/AdminDashboard'
 
 Vue.use(Router)
 
@@ -19,9 +19,9 @@ export default new Router({
       component: Dashboard
     },
     {
-      path: '/admin/foods',
-      name: 'AdminFoodList',
-      component: AdminFoodList
+      path: '/admin/dashboard',
+      name: 'AdminDashboard',
+      component: AdminDashboard
     }
   ]
 })
