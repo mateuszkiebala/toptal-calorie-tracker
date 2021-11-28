@@ -52,7 +52,7 @@ class FoodsControllerTest < AuthenticationTest
     # then
     assert_response :bad_request
     response = JSON.parse(@response.body)
-    expected = {"errors"=>[{"status"=>400, "detail"=>"'type' doesn't match 'foods'", "source"=>nil, "title"=>"Bad Request", "code"=>nil}]}
+    expected = {"errors"=>[{"status"=>400, "detail"=>"'type'='' doesn't match 'foods'", "source"=>nil, "title"=>"Bad Request", "code"=>nil}]}
     assert_equal(expected, response)
   end
 
@@ -75,7 +75,7 @@ class FoodsControllerTest < AuthenticationTest
     # then
     assert_response :bad_request
     response = JSON.parse(@response.body)
-    expected = {"errors"=>[{"status"=>400, "detail"=>"'type' doesn't match 'foods'", "source"=>nil, "title"=>"Bad Request", "code"=>nil}]}
+    expected = {"errors"=>[{"status"=>400, "detail"=>"'type'='invalid' doesn't match 'foods'", "source"=>nil, "title"=>"Bad Request", "code"=>nil}]}
     assert_equal(expected, response)
   end
 

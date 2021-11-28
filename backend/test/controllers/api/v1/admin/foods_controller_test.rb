@@ -105,7 +105,7 @@ module Admin
       # then
       assert_response :bad_request
       response = JSON.parse(@response.body)
-      expected = {"errors":[{"status":400,"detail":"'type' doesn't match 'foods'","source":nil,"title":"Bad Request","code":nil}]}
+      expected = {"errors":[{"status":400,"detail":"'type'='invalid' doesn't match 'foods'","source":nil,"title":"Bad Request","code":nil}]}
       assert_equal(expected.to_json, response.to_json)
     end
 

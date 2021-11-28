@@ -20,7 +20,6 @@ ActiveRecord::Schema.define(version: 2021_11_25_181030) do
     t.datetime "taken_at", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["name", "user_id"], name: "index_foods_on_name_and_user_id", unique: true
     t.index ["user_id"], name: "index_foods_on_user_id"
   end
 

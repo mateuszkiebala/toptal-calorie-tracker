@@ -285,7 +285,7 @@ class FoodTest < ActiveSupport::TestCase
     assert_empty(food_2.errors.messages)
   end
 
-  test 'unique food per user - same user' do
+  test 'same food per user' do
     # given
     data = {
       name: "aaa",
@@ -299,8 +299,8 @@ class FoodTest < ActiveSupport::TestCase
     food_2 = Food.new(data.merge(calorie_value: 444))
 
     # then
-    assert_not(food_2.save)
-    assert_equal({ :name => ["has already been taken"] }, food_2.errors.messages)
+    assert(food_2.save)
+    assert(Food.find_by(id: food_2.id))
   end
 
   test 'delete food - do not delete user' do
