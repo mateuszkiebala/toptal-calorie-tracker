@@ -20,7 +20,7 @@ class ApplicationController < ActionController::API
   end
 
   def authorise_admin_access
-    raise AuthorisationError.new unless current_user.admin?
+    raise AuthorisationError.new if current_user.blank? || !current_user.admin?
   end
 
   def current_user
@@ -38,30 +38,30 @@ class ApplicationController < ActionController::API
       @has_parsed_body = true
       @parsed_body
     end
+  end
 
-    def handle_command(command_model, data, options={})
-      command = command_model.new(data).call
-      if command.success?
-        render_jsonapi_success(command.result, command.status || :ok, options)
-      else
-        render_jsonapi_errors(command.get_errors, command.status || :bad_request, options)
+  def handle_command(command_model, data, options={})
+    command = command_model.new(data).call
+    if command.success?
+      render_jsonapi_success(command.result, command.status || :ok, options)
+    else
+      render_jsonapi_errors(command.get_errors, command.status || :bad_request, options)
+    end
+  end
+
+  def render_jsonapi_index(data_source, filter_allowed)
+    jsonapi_filter(data_source, filter_allowed) do |filtered|
+      jsonapi_paginate(filtered.result) do |paginated|
+        render jsonapi: paginated, status: :ok, meta: jsonapi_pagination_meta(paginated)
       end
     end
+  end
 
-    def render_jsonapi_index(data_source, filter_allowed)
-      jsonapi_filter(data_source, filter_allowed) do |filtered|
-        jsonapi_paginate(filtered.result) do |paginated|
-          render jsonapi: paginated, status: :ok, meta: jsonapi_pagination_meta(paginated)
-        end
-      end
-    end
+  def render_jsonapi_success(data, status, options={})
+    render jsonapi: data, status: status, **options
+  end
 
-    def render_jsonapi_success(data, status, options={})
-      render jsonapi: data, status: status, **options
-    end
-
-    def render_jsonapi_errors(data, status, options={})
-      render jsonapi_errors: data, status: status, **options
-    end
+  def render_jsonapi_errors(data, status, options={})
+    render jsonapi_errors: data, status: status, **options
   end
 end

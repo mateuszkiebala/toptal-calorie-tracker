@@ -4,7 +4,7 @@ Rails.application.routes.draw do
 
       get '/users/my_profile'
 
-      resources :foods, only: [:create, :index] do
+      resources :foods, only: [:create, :index, :show] do
         collection do
           get 'daily_statistics'
         end

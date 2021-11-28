@@ -6,11 +6,11 @@ class FoodSerializer
   belongs_to :user, serializer: OwnerSerializer
 
   attribute :calorie_value do |object|
-    object.calorie_value.to_s('F')
+    object.calorie_value&.to_s('F')
   end
 
   attribute :price do |object|
-    object.price.to_s('F')
+    object.price&.to_s('F')
   end
 
   attribute :taken_at do |object|

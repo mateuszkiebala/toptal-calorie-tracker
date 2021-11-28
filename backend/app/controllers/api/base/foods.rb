@@ -12,6 +12,7 @@ module Api
         @food = Food.find_by(id: food_id)
 
         raise ObjectNotFound.new("food with id='#{food_id}' does not exist") if @food.nil?
+        raise AuthorisationError.new if !@current_user.admin? && !is_owner?(@food)
       end
 
       def set_food_attributes
@@ -21,6 +22,10 @@ module Api
         raise FoodsError.new("'type'='#{data['type']}' doesn't match 'foods'") if data['type'] != 'foods'
         raise FoodsError.new("'attributes' section is missing") if data['attributes'].blank?
         @food_attributes = data['attributes']
+      end
+
+      def is_owner?(food)
+        food.present? && food.user_id == @current_user.id
       end
     end
   end

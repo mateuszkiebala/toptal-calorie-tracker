@@ -1,7 +1,17 @@
 module Api
   module V1
     class FoodsController < Api::Base::Foods
+      before_action :set_food, only: [:show]
       before_action :set_food_attributes, only: [:create]
+
+      # GET /api/v1/foods
+      def show
+        data = {
+          food: @food,
+          current_user: @current_user
+        }
+        handle_command(Foods::Show, data)
+      end
 
       # GET /api/v1/foods
       def index

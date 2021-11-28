@@ -3,6 +3,95 @@ require 'controllers/authentication_test'
 
 class FoodsControllerTest < AuthenticationTest
 
+  test 'fail show - request must be authenticated' do
+    # given
+    @headers = {
+      CONTENT_TYPE: "application/json"
+    }
+
+    # when, then
+    assert_unauthenticated(:get, "/api/v1/foods/12")
+  end
+
+  test 'fail show - food does not exist' do
+    # given when
+    get "/api/v1/foods/123321", headers: @headers
+
+    # then
+    assert_response :not_found
+    response = JSON.parse(@response.body)
+    expected = {"errors"=>[{"status"=>404, "detail"=>"food with id='123321' does not exist", "source"=>nil, "title"=>"Not Found", "code"=>nil}]}
+    assert_equal(expected, response)
+  end
+
+  test 'fail show - food does not belong to regular user' do
+    # given
+    user_regular = create(:user, role: :regular)
+    auth_token = JsonWebToken.encode(user_id: user_regular.id)
+    user_regular.update!(auth_token: auth_token)
+    headers = {
+      Authorization: "Bearer #{auth_token}",
+      CONTENT_TYPE: "application/json"
+    }
+
+    user_stranger = create(:user)
+    food = create(:food, user: user_stranger)
+
+    # when
+    get "/api/v1/foods/#{food.id}", headers: headers
+
+    # then
+    assert_response :forbidden
+    response = JSON.parse(@response.body)
+    expected = {"errors"=>[{"status"=>403, "detail"=>"Not Authorised", "source"=>nil, "title"=>"Forbidden", "code"=>nil}]}
+    assert_equal(expected, response)
+  end
+
+  test 'success show - food does not belong to user but it is admin' do
+    # given
+    user_admin = create(:user, role: :admin)
+    auth_token = JsonWebToken.encode(user_id: user_admin.id)
+    user_admin.update!(auth_token: auth_token)
+    headers = {
+      Authorization: "Bearer #{auth_token}",
+      CONTENT_TYPE: "application/json"
+    }
+
+    user_stranger = create(:user)
+    food = create(:food, user: user_stranger)
+
+    # when
+    get "/api/v1/foods/#{food.id}", headers: headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    assert_equal(food.id.to_s, response["data"]["id"])
+  end
+
+  test 'success show - same owner - user regular' do
+    # given
+    food = create(:food, user: @user)
+
+    # when
+    get "/api/v1/foods/#{food.id}", headers: @headers
+
+    # then
+    assert_response :ok
+    response = JSON.parse(@response.body)
+    expected = {
+      "id": food.id.to_s,
+      "type": "foods",
+      "attributes": {
+        "name": food.name,
+        "calorie_value": food.calorie_value.to_s('F'),
+        "price": "0.0",
+        "taken_at": food.taken_at.strftime("%Y-%m-%dT%H:%M:%S")
+      }
+    }
+    assert_equal(expected.to_json, response["data"].except("relationships").to_json)
+  end
+
   test 'fail create - request must be authenticated' do
     # given
     @headers = {
