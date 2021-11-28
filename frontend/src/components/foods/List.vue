@@ -155,8 +155,8 @@ export default {
       }
     },
     updateFood (item, index, button) {
-      if (!this.isAdmin()) {
-        return null
+      if (this.isAdmin()) {
+        this.$router.replace(`/foods/edit/${item.id}`)
       }
     },
     isAdmin () {

@@ -5,7 +5,7 @@
         <router-link class="nav-link" to="/dashboard">Home</router-link>
       </li>
       <li class="nav-item new-product">
-        <router-link class="nav-link" to="/foods/form">New Product</router-link>
+        <router-link class="nav-link" to="/foods/new">New Product</router-link>
       </li>
     </ul>
     <ul class="navbar ml-auto">

@@ -101,6 +101,7 @@
 import AppHeader from '@/components/AppHeader'
 import { validationMixin } from 'vuelidate'
 import { required, minLength, maxLength, helpers, between, minValue } from 'vuelidate/lib/validators'
+import moment from 'moment'
 
 export default {
   name: 'Form',
@@ -108,6 +109,7 @@ export default {
   data () {
     return {
       errors: [],
+      food_id: null,
       form: {
         name: null,
         calorie_value: null,
@@ -117,6 +119,10 @@ export default {
       },
       show: true
     }
+  },
+  created () {
+    this.setFoodId()
+    this.fillWithData()
   },
   validations: {
     form: {
@@ -143,6 +149,9 @@ export default {
     }
   },
   methods: {
+    setFoodId () {
+      this.food_id = this.$route.params.id
+    },
     validateState (name) {
       const { $dirty, $error } = this.$v.form[name]
       return $dirty ? !$error : null
@@ -164,22 +173,11 @@ export default {
         return
       }
 
-      let data = {
-        type: 'foods',
-        attributes: {
-          name: this.form.name,
-          calorie_value: this.form.calorie_value,
-          price: this.form.price,
-          taken_at: `${this.form.taken_at_day}T${this.form.taken_at_time}`
-        }
+      if (this.food_id) {
+        this.updateFood()
+      } else {
+        this.createFood()
       }
-
-      this.plain.post('/foods', { data })
-        .then(response => {
-          this.$router.replace('/dashboard')
-        }).catch(error => {
-          this.setError(error, 'Something went wrong')
-        })
     },
     onReset (event) {
       event.preventDefault()
@@ -202,6 +200,53 @@ export default {
       this.$nextTick(() => {
         this.show = true
       })
+    },
+    getFoodAttributes () {
+      return {
+        type: 'foods',
+        attributes: {
+          name: this.form.name,
+          calorie_value: this.form.calorie_value,
+          price: this.form.price,
+          taken_at: `${this.form.taken_at_day}T${this.form.taken_at_time}`
+        }
+      }
+    },
+    createFood () {
+      let data = this.getFoodAttributes()
+      this.plain.post('/foods', { data })
+        .then(response => {
+          this.$router.replace('/dashboard')
+        }).catch(error => {
+          this.setError(error, 'Something went wrong')
+        })
+    },
+    updateFood () {
+      if (this.isAdmin() && this.food_id) {
+        let data = this.getFoodAttributes()
+        this.plain.patch(`/admin/foods/${this.food_id}`, { data })
+          .then(response => {
+            this.$router.replace('/dashboard')
+          }).catch(error => {
+            this.setError(error, 'Something went wrong')
+          })
+      }
+    },
+    fillWithData () {
+      if (this.isAdmin() && this.food_id) {
+        this.plain.get(`/foods/${this.food_id}`)
+          .then(response => {
+            let foodAttributes = response.data.data.attributes
+            this.form.name = foodAttributes.name
+            this.form.calorie_value = foodAttributes.calorie_value
+            this.form.price = foodAttributes.price
+            this.form.taken_at_day = moment(foodAttributes.taken_at).format('YYYY-MM-DD')
+            this.form.taken_at_time = moment(foodAttributes.taken_at).format('hh:mm')
+            this.$v.form.$touch()
+          }).catch(error => {
+            this.setError(error, 'Something went wrong')
+          })
+      }
     },
     isAdmin () {
       return this.$store.getters.isAdmin

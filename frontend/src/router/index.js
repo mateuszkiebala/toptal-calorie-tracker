@@ -25,8 +25,13 @@ export default new Router({
       component: AdminDashboard
     },
     {
-      path: '/foods/form',
-      name: 'Form',
+      path: '/foods/new',
+      name: 'FoodNew',
+      component: Form
+    },
+    {
+      path: '/foods/edit/:id',
+      name: 'FoodEdit',
       component: Form
     }
   ]
