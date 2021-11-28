@@ -282,7 +282,7 @@ module Admin
       assert_response :ok
       response = JSON.parse(@response.body)
       assert_equal("food_user_statistics", response["data"]["type"])
-      expected_stats = {"average_calories"=>[{"user_id"=>food1.user_id, "value"=>"12.0"}, {"user_id"=>food2.user_id, "value"=>"15.0"}]}
+      expected_stats = {"average_calories"=>[{"user_id"=>food1.user_id, "value"=>"12.00"}, {"user_id"=>food2.user_id, "value"=>"15.00"}]}
       assert_equal(expected_stats, response["data"]["attributes"])
     end
 
@@ -312,7 +312,7 @@ module Admin
       assert_response :ok
       response = JSON.parse(@response.body)
       assert_equal("food_user_statistics", response["data"]["type"])
-      expected_stats = {"average_calories"=>[{"user_id"=>user3.id, "value"=>"18.5"}, {"user_id"=>user4.id, "value"=>"180.25"}]}
+      expected_stats = {"average_calories"=>[{"user_id"=>user3.id, "value"=>"18.50"}, {"user_id"=>user4.id, "value"=>"180.25"}]}
       assert_equal(expected_stats, response["data"]["attributes"])
 
       expected_next_link = "http://www.example.com/api/v1/admin/foods/user_statistics?filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'&page[number]=3&page[size]=2"

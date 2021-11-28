@@ -9,8 +9,8 @@ module Foods
         object.values.map do |stat|
           {
             day: stat.day,
-            calorie_sum: stat.calorie_sum.to_s('F'),
-            price_sum: stat.price_sum.to_s('F')
+            calorie_sum: "%.2f" % stat.calorie_sum,
+            price_sum: "%.2f" % stat.price_sum
           }
         end
       end

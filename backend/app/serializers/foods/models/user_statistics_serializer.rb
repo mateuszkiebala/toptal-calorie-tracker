@@ -9,7 +9,7 @@ module Foods
         object.average_calories.map do |stat|
           {
             user_id: stat.user_id,
-            value: stat.value.to_s('F')
+            value: "%.2f" % stat.value
           }
         end
       end

@@ -85,7 +85,7 @@ class FoodsControllerTest < AuthenticationTest
       "attributes": {
         "name": food.name,
         "calorie_value": food.calorie_value.to_s('F'),
-        "price": "0.0",
+        "price": "0.00",
         "taken_at": food.taken_at.strftime("%Y-%m-%dT%H:%M:%S")
       }
     }
@@ -259,7 +259,7 @@ class FoodsControllerTest < AuthenticationTest
         "name" => "test food name",
         "calorie_value" => "123.84",
         "taken_at" => now.strftime("%Y-%m-%dT%H:%M:%S"),
-        "price" => "12344.0"
+        "price" => "12344.00"
       },
       "relationships" => {
         "user" => {
@@ -436,8 +436,8 @@ class FoodsControllerTest < AuthenticationTest
     assert_response :ok
     response = JSON.parse(@response.body)
     assert_equal("food_daily_statistics", response["data"]["type"])
-    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"12.0", "price_sum"=>"1200.99"},
-                          {"day"=>"2021-11-24", "calorie_sum"=>"15.0", "price_sum"=>"1400.99"}]}
+    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"12.00", "price_sum"=>"1200.99"},
+                          {"day"=>"2021-11-24", "calorie_sum"=>"15.00", "price_sum"=>"1400.99"}]}
     assert_equal(expected, response["data"]["attributes"])
   end
 
@@ -458,7 +458,7 @@ class FoodsControllerTest < AuthenticationTest
     assert_response :ok
     response = JSON.parse(@response.body)
     assert_equal("food_daily_statistics", response["data"]["type"])
-    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"111.0", "price_sum"=>"2501.98"}]}
+    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"111.00", "price_sum"=>"2501.98"}]}
     assert_equal(expected, response["data"]["attributes"])
   end
 end
