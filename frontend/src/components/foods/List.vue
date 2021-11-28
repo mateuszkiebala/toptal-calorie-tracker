@@ -1,5 +1,10 @@
 <template>
   <div class="container">
+    <date-range-picker
+      v-model="dateRange"
+      @update="updateDateRange"
+    ></date-range-picker>
+
     <b-container fluid>
       <!-- User Interface controls -->
       <b-row>
@@ -37,6 +42,7 @@
 
       <!-- Main table element -->
       <b-table
+        id="foods-list"
         :busy.sync="isBusy"
         :items="fetchData"
         :fields="fields"
@@ -63,13 +69,19 @@
 </template>
 
 <script>
-import AppHeader from '@/components/AppHeader'
+import DateRangePicker from 'vue2-daterange-picker'
+import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
+import moment from 'moment'
 
 export default {
   name: 'List',
   data () {
     return {
       error: '',
+      dateRange: {
+        startDate: null,
+        endDate: null
+      },
       isBusy: false,
       fields: [
         { key: 'id', label: 'ID' },
@@ -84,17 +96,29 @@ export default {
       pageOptions: [5, 10, 15, { value: 100, text: 'Show a lot' }]
     }
   },
+  created () {
+    let now = moment().utc()
+    this.dateRange.startDate = now.startOf('day').toISOString()
+    this.dateRange.endDate = now.endOf('day').toISOString()
+  },
   methods: {
     setError (error, text) {
       this.error = (error.response.errors[0] && error.response.errors[0].detail) || text
+    },
+    updateDateRange (event) {
+      this.$root.$emit('bv::refresh::table', 'foods-list')
     },
     fetchData (ctx) {
       if (!this.$store.getters.signedIn) {
         this.$router.replace('/')
       } else {
+        let startDate = this.dateRange.startDate
+        let endDate = this.dateRange.endDate
         let params = {
           'page[number]': this.currentPage,
-          'page[size]': this.perPage
+          'page[size]': this.perPage,
+          'filter[taken_at_gteq]': startDate,
+          'filter[taken_at_lteq]': endDate
         }
 
         let promise = this.plain.get('/foods', {params})
@@ -110,7 +134,7 @@ export default {
       }
     }
   },
-  components: { AppHeader }
+  components: { DateRangePicker }
 }
 </script>
 

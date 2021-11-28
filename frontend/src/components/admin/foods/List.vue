@@ -27,7 +27,6 @@
 
 <script>
 import AppHeader from '@/components/AppHeader'
-import DateRangePickerMati from '@/components/DateRangePickerMati'
 
 export default {
   name: 'AdminFoodList',
@@ -58,6 +57,6 @@ export default {
       return this.$store.getters.isAdmin
     }
   },
-  components: { AppHeader, DateRangePickerMati }
+  components: { AppHeader }
 }
 </script>
