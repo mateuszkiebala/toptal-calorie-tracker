@@ -103,7 +103,7 @@ export default {
     }
   },
   created () {
-    let now = moment().utc()
+    let now = moment()
     this.dateRange.startDate = now.startOf('day').toISOString()
     this.dateRange.endDate = now.endOf('day').toISOString()
   },
@@ -166,6 +166,3 @@ export default {
   components: { DateRangePicker }
 }
 </script>
-
-<style lang="css">
-</style>

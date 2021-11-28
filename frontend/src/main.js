@@ -3,25 +3,25 @@ import App from './App'
 import router from './router'
 import { store } from './store'
 import VueAxios from 'vue-axios'
-import VueFormulate from '@braid/vue-formulate'
 import BootstrapVue from 'bootstrap-vue'
+import Vuelidate from 'vuelidate'
 import { plainAxiosInstance } from './backend/axios'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, {
   plain: plainAxiosInstance
 })
 
-Vue.use(VueFormulate)
 Vue.use(BootstrapVue)
+Vue.use(Vuelidate)
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
   store,
-  VueFormulate,
-  BootstrapVue,
   plainAxiosInstance,
   components: { App },
   template: '<App/>'
