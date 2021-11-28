@@ -42,6 +42,7 @@ module Admin
 
       expected_first_link = "http://www.example.com/api/v1/admin/foods?filter[taken_at_gteq]='2021-11-22T00:00:00'&filter[taken_at_lteq]='2021-11-27T00:00:00'&page[number]=1&page[size]=3"
       assert_equal(expected_first_link, response["links"]["first"])
+      assert_equal(6, response["meta"]["records"])
     end
 
     test 'success index - fetch all data' do
@@ -316,6 +317,7 @@ module Admin
 
       expected_next_link = "http://www.example.com/api/v1/admin/foods/user_statistics?filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'&page[number]=3&page[size]=2"
       assert_equal(expected_next_link, response["links"]["next"])
+      assert_equal(User.all.count, response["meta"]["records"])
     end
 
     test 'global_statistics not authorise' do

@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      get '/my_profile', to: 'users#my_profile'
+
+      get '/users/my_profile'
 
       resources :foods, only: [:create, :index] do
         collection do

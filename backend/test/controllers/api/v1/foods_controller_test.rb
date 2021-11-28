@@ -287,6 +287,7 @@ class FoodsControllerTest < AuthenticationTest
     response = JSON.parse(@response.body)
     expected = [food2, food1].map {|food| FoodSerializer.new(food).serializable_hash[:data]}.to_json
     assert_equal(expected, response["data"].to_json)
+    assert_equal(5, response["meta"]["records"])
   end
 
   test 'success index - fetch only your data' do

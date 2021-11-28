@@ -10,12 +10,12 @@ class UsersControllerTest < AuthenticationTest
     }
 
     # when, then
-    assert_unauthenticated(:get, "/api/v1/my_profile")
+    assert_unauthenticated(:get, "/api/v1/users/my_profile")
   end
 
   test 'success my_profile' do
     # given, when
-    get "/api/v1/my_profile", params: {}, headers: @headers
+    get "/api/v1/users/my_profile", params: {}, headers: @headers
 
     # then
     assert_response :ok
@@ -32,7 +32,7 @@ class UsersControllerTest < AuthenticationTest
         }
       },
       "links" => {
-        "self" => "http://www.example.com/api/v1/my_profile"
+        "self" => "http://www.example.com/api/v1/users/my_profile"
       }
     }
     assert_equal(expected, response)

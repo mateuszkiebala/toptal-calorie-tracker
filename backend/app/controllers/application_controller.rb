@@ -51,7 +51,7 @@ class ApplicationController < ActionController::API
     def render_jsonapi_index(data_source, filter_allowed)
       jsonapi_filter(data_source, filter_allowed) do |filtered|
         jsonapi_paginate(filtered.result) do |paginated|
-          render jsonapi: paginated, status: :ok
+          render jsonapi: paginated, status: :ok, meta: jsonapi_pagination_meta(paginated)
         end
       end
     end

@@ -36,6 +36,7 @@ module Api
         def user_statistics
           pagination_data_source = User.order(username: :asc)
           links = jsonapi_pagination(pagination_data_source)
+          meta = jsonapi_pagination_meta(pagination_data_source)
 
           jsonapi_paginate(pagination_data_source) do |paginated|
             render_jsonapi_success(nil, :ok) if paginated.blank?
@@ -44,7 +45,7 @@ module Api
             filter_data_source = Food.where(user_id: users_to_fetch).order(taken_at: :desc)
             allowed = [:taken_at]
             jsonapi_filter(filter_data_source, allowed) do |filtered|
-              handle_command(Foods::UserStatistics, { data_source: filtered.result }, { links: links })
+              handle_command(Foods::UserStatistics, { data_source: filtered.result }, { links: links, meta: meta })
             end
           end
         end

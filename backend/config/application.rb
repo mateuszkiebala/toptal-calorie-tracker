@@ -28,8 +28,12 @@ module Backend
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*'
-        resource '*', :headers => 'Content-Type, Accept-Encoding', :methods => [:get, :post, :options]
+        origins %w[http://127.0.0.1:8080 http://localhost:8080]
+
+        resource '*',
+                 headers: :any,
+                 credentials: true,
+                 methods: [:get, :post, :put, :patch, :delete, :options, :head]
       end
     end
   end
