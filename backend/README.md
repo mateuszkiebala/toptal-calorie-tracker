@@ -1,24 +1,35 @@
-# README
+# Backend
+- **Application**: Calorie Tracker
+- **Author**: Mateusz Kiebala
+- **Email**: mateuszkiebala@gmail.com
+- **Server Technology**: Rails API
+- **Database Technology**: MySQL
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Build setup
+```
+bundle exec rake db:create
+bundle exec rake db:migrate
+```
 
-Things you may want to cover:
+### Run locally
+```
+rails s
+```
+Server will be running at http://127.0.0.1:3000
 
-* Ruby version
+### Run test
+```
+bundle exec rake test
+```
 
-* System dependencies
+Result:
+```
+Run options: --seed 23445
 
-* Configuration
+# Running:
 
-* Database creation
+..............................................................................................................
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Finished in 0.991875s, 110.9011 runs/s, 295.4001 assertions/s.
+110 runs, 293 assertions, 0 failures, 0 errors, 0 skips
+```

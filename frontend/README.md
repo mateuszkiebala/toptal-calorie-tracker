@@ -1,27 +1,17 @@
-# frontend
-
-> Calorie tracker SPA
+# Frontend
+- **Application**: Calorie Tracker
+- **Author**: Mateusz Kiebala
+- **Email**: mateuszkiebala@gmail.com
+- **Technology**: Vue
 
 ## Build Setup
 
 ``` bash
-# install dependencies
 npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run all tests
-npm test
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### Run locally
+```
+npm run dev
+```
+App will be running at http://127.0.0.1:8080
