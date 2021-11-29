@@ -11,6 +11,11 @@ bundle exec rake db:create
 bundle exec rake db:migrate
 ```
 
+### Generate random data
+```
+bundle exec rake db:seed
+```
+
 ### Run locally
 ```
 rails s

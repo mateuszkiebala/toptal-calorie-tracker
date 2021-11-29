@@ -3,8 +3,8 @@
     <AppHeader></AppHeader>
     <ErrorAlert :errors="serverErrors"></ErrorAlert>
 
-    <b-alert v-if="isCalorieLimitExceeded()" variant="warning" show>You have exceeded your daily calorie limit! {{ this.todayCalorieSum }} / {{ this.calorieLimit }}</b-alert>
-    <b-alert v-if="isMoneyLimitExceeded()" variant="warning" show>You have exceeded your monthly money limit! {{ this.monthlyMoneySum }} / {{ this.moneyLimit }}</b-alert>
+    <b-alert v-if="isCalorieLimitExceeded()" variant="warning" show>You have exceeded your daily calorie limit! {{ this.todayCalorieSum.toFixed(2) }} / {{ this.calorieLimit.toFixed(2) }}</b-alert>
+    <b-alert v-if="isMoneyLimitExceeded()" variant="warning" show>You have exceeded your monthly money limit! {{ this.monthlyMoneySum.toFixed(2) }} / {{ this.moneyLimit.toFixed(2) }}</b-alert>
 
     <h3 style="margin-bottom: 2em; margin-top: 2em;">Your statistics</h3>
 
