@@ -123,14 +123,16 @@ export default {
       this.$root.$emit('bv::refresh::table', 'daily-statistics-list')
     },
     fetchDailyStatistics (ctx) {
-      let promise = this.fetchStatistics(this.dateRange.startDate, this.dateRange.endDate)
+      const startDay = this.dayStartString(this.dateRange.startDate)
+      const endDay = this.dayEndString(this.dateRange.endDate)
+      let promise = this.fetchStatistics(startDay, endDay)
       return promise.then(response => {
         this.cleanErrors()
         const data = response.data.data.attributes.values
         this.totalRows = data.length
         if (data.length > 0) {
           const startIndex = (this.currentPage - 1) * this.perPage
-          const endIndex = startIndex + this.perPage - 1
+          const endIndex = startIndex + this.perPage
           return data.slice(startIndex, endIndex)
         } else {
           return []

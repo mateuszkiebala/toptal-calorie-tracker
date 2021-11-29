@@ -10,7 +10,7 @@
       <b-form-group id="input-group-name" label="Name:" label-for="input-name">
         <b-form-input
           id="input-name"
-          v-model="$v.form.name.$model"
+          v-model.trim="$v.form.name.$model"
           :state="validateState('name')"
           aria-describedby="input-name-live-feedback"
           placeholder="What is product name?"
@@ -88,7 +88,7 @@
 
       <b-button type="submit" variant="primary">Submit</b-button>
       <b-button type="reset" variant="danger">Reset</b-button>
-      <b-button type="reset" variant="danger" href="/dashboard">Cancel</b-button>
+      <b-button type="reset" variant="danger" href="/">Cancel</b-button>
     </b-form>
   </div>
 </template>
@@ -190,13 +190,14 @@ export default {
       })
     },
     getFoodAttributes () {
+      const takenAt = moment(`${this.form.taken_at_day}T${this.form.taken_at_time}`).utc().format('YYYY-MM-DD HH:mm:ss')
       return {
         type: 'foods',
         attributes: {
           name: this.form.name,
           calorie_value: this.form.calorie_value,
           price: this.form.price,
-          taken_at: `${this.form.taken_at_day}T${this.form.taken_at_time}`
+          taken_at: takenAt
         }
       }
     },

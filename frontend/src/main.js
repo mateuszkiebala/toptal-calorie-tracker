@@ -9,6 +9,7 @@ import { plainAxiosInstance, unauthenticatedAxiosInstance } from './backend/axio
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueApexCharts from 'vue-apexcharts'
+import moment from 'moment'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, {
@@ -32,6 +33,12 @@ Vue.mixin({
       return errors.response.data.errors.map(function (error) {
         return error.detail
       })
+    },
+    dayStartString: function (datetime) {
+      return moment(datetime).startOf('day').toISOString()
+    },
+    dayEndString: function (datetime) {
+      return moment(datetime).endOf('day').toISOString()
     }
   }
 })

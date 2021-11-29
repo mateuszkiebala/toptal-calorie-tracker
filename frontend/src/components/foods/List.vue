@@ -114,9 +114,8 @@ export default {
     }
   },
   created () {
-    let now = moment()
-    this.dateRange.startDate = now.startOf('day').toISOString()
-    this.dateRange.endDate = now.endOf('day').toISOString()
+    this.dateRange.startDate = moment().startOf('day').toISOString()
+    this.dateRange.endDate = moment().endOf('day').toISOString()
   },
   methods: {
     refreshTable (event) {
@@ -126,8 +125,8 @@ export default {
       let params = {
         'page[number]': this.currentPage,
         'page[size]': this.perPage,
-        'filter[taken_at_gteq]': this.dateRange.startDate,
-        'filter[taken_at_lteq]': this.dateRange.endDate
+        'filter[taken_at_gteq]': this.dayStartString(this.dateRange.startDate),
+        'filter[taken_at_lteq]': this.dayEndString(this.dateRange.endDate)
       }
 
       let promise = this.plain.get(this.fetchFoodsPath || '/foods', {params})
@@ -135,7 +134,13 @@ export default {
         this.cleanErrors()
         this.totalRows = response.data.meta.records
         return response.data.data.map(function (food) {
-          return Object.assign({}, food.attributes, {id: food.id, food_name: food.attributes.name})
+          return {
+            id: food.id,
+            food_name: food.attributes.name,
+            calorie_value: food.attributes.calorie_value,
+            price: food.attributes.price,
+            taken_at: moment(food.attributes.taken_at).format('YYYY-MM-DD HH:mm:ss')
+          }
         })
       }).catch(error => {
         this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
