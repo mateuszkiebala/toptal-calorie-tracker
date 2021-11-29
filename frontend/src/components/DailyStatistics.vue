@@ -126,7 +126,15 @@ export default {
       let promise = this.fetchStatistics(this.dateRange.startDate, this.dateRange.endDate)
       return promise.then(response => {
         this.cleanErrors()
-        return response.data.data.attributes.values
+        const data = response.data.data.attributes.values
+        this.totalRows = data.length
+        if (data.length > 0) {
+          const startIndex = (this.currentPage - 1) * this.perPage
+          const endIndex = startIndex + this.perPage - 1
+          return data.slice(startIndex, endIndex)
+        } else {
+          return []
+        }
       }).catch(error => {
         this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
         return []
