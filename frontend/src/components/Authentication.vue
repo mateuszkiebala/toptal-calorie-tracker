@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     authenticate () {
-      this.plain.get('/users/my_profile', { headers: { 'Authorization': this.authToken } })
+      this.unauthenticated.get('/users/my_profile', { headers: { 'Authorization': this.authToken } })
         .then(response => this.authenticationSuccessful(response))
         .catch(error => this.authenticationFailed(error))
     },

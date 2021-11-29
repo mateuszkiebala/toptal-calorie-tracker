@@ -7,9 +7,24 @@ const plainAxiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': store.state.authToken
+    'Content-Type': 'application/json'
   }
 })
 
-export { plainAxiosInstance }
+const unauthenticatedAxiosInstance = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+plainAxiosInstance.interceptors.request.use(function (config) {
+  config.headers = {
+    ...config.headers,
+    'Authorization': store.state.authToken
+  }
+  return config
+})
+
+export { plainAxiosInstance, unauthenticatedAxiosInstance }
