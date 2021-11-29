@@ -50,9 +50,10 @@ class Foods::DailyStatisticsTest < BaseTest
     assert(command.success?)
     assert(command.result)
     assert_equal(:ok, command.status)
-    expected = [{ :day=>"2021-11-21", :calorie_sum=>"18000.5", :price_sum=>"124.0" },
-                { :day=>"2021-11-22", :calorie_sum=>"17.0", :price_sum=>"14.0" },
-                { :day=>"2021-11-23", :calorie_sum=>"3015.0", :price_sum=>"100099.0" }]
+    expected = [
+      { :day=>"2021-11-23", :calorie_sum=>"3015.0", :price_sum=>"100099.0" },
+      { :day=>"2021-11-22", :calorie_sum=>"17.0", :price_sum=>"14.0" },
+      { :day=>"2021-11-21", :calorie_sum=>"18000.5", :price_sum=>"124.0" }]
     assert_equal(expected.to_json, command.result.values.to_json)
   end
 end

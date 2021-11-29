@@ -20,7 +20,7 @@ module Foods
           price_sum: foods.inject(0.0) { |sum, food| sum + food.price }
         }
         Models::DailyStatistics::Stat.new(attrs)
-      end.sort_by(&:day)
+      end.sort_by(&:day).reverse
     end
   end
 end

@@ -436,8 +436,9 @@ class FoodsControllerTest < AuthenticationTest
     assert_response :ok
     response = JSON.parse(@response.body)
     assert_equal("food_daily_statistics", response["data"]["type"])
-    expected = {"values"=>[{"day"=>"2021-11-23", "calorie_sum"=>"12.00", "price_sum"=>"1200.99"},
-                          {"day"=>"2021-11-24", "calorie_sum"=>"15.00", "price_sum"=>"1400.99"}]}
+    expected = {"values"=>[
+      {"day"=>"2021-11-24", "calorie_sum"=>"15.00", "price_sum"=>"1400.99"},
+      {"day"=>"2021-11-23", "calorie_sum"=>"12.00", "price_sum"=>"1200.99"}]}
     assert_equal(expected, response["data"]["attributes"])
   end
 
