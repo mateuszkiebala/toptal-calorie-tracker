@@ -19,7 +19,7 @@
         <router-link class="nav-link" to="/admin/dashboard">All Products</router-link>
       </li>
       <li class="nav-item sign-out">
-        <a class="nav-link" @click="signOut">Sign out</a>
+        <a class="nav-link" @click="signOut">Sign out ({{ username }})</a>
       </li>
     </ul>
   </nav>
@@ -28,6 +28,14 @@
 <script>
 export default {
   name: 'AppHeader',
+  data () {
+    return {
+      username: ''
+    }
+  },
+  created () {
+    this.username = this.$store.state.currentUser.username
+  },
   methods: {
     signOut () {
       this.$store.commit('unsetCurrentUser')
