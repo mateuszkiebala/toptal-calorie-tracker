@@ -8,7 +8,7 @@
         <router-link class="nav-link" to="/foods/new">New Product</router-link>
       </li>
       <li class="nav-item daily-statistics">
-        <router-link class="nav-link" to="/daily_statistics">Daily Statistics</router-link>
+        <router-link class="nav-link" to="/daily_statistics">Your Statistics</router-link>
       </li>
     </ul>
     <ul class="navbar ml-auto">
@@ -16,7 +16,7 @@
         <router-link class="nav-link" to="/admin/report">Reports</router-link>
       </li>
       <li class="nav-item" v-if="showAdminLink()">
-        <router-link class="nav-link" to="/admin/dashboard">Admin</router-link>
+        <router-link class="nav-link" to="/admin/dashboard">All Products</router-link>
       </li>
       <li class="nav-item sign-out">
         <a class="nav-link" @click="signOut">Sign out</a>

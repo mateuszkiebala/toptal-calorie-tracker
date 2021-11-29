@@ -6,7 +6,7 @@
     <b-alert v-if="isCalorieLimitExceeded()" variant="warning" show>You have exceeded your daily calorie limit! {{ this.todayCalorieSum }} / {{ this.calorieLimit }}</b-alert>
     <b-alert v-if="isMoneyLimitExceeded()" variant="warning" show>You have exceeded your monthly money limit! {{ this.monthlyMoneySum }} / {{ this.moneyLimit }}</b-alert>
 
-    <h3 style="margin-bottom: 2em; margin-top: 2em;">Daily statistics</h3>
+    <h3 style="margin-bottom: 2em; margin-top: 2em;">Your statistics</h3>
 
     <b-form-group id="group-date-range" label="Filter by date:" label-for="date-range">
       <date-range-picker

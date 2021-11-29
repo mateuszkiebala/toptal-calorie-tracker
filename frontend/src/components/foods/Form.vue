@@ -88,6 +88,7 @@
 
       <b-button type="submit" variant="primary">Submit</b-button>
       <b-button type="reset" variant="danger">Reset</b-button>
+      <b-button type="reset" variant="danger" href="/dashboard">Cancel</b-button>
     </b-form>
   </div>
 </template>

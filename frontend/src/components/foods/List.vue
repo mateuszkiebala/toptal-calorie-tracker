@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <AppHeader></AppHeader>
     <ErrorAlert :errors="serverErrors"></ErrorAlert>
 
-    <h3 style="margin-bottom: 2em">Products</h3>
+    <h3 style="margin-bottom: 2em" v-if="isAllProductsView()">All Products</h3>
+    <h3 style="margin-bottom: 2em" v-else>Your Products</h3>
 
     <b-form-group id="group-date-range" label="Filter by date:" label-for="date-range">
       <date-range-picker
@@ -90,6 +90,7 @@ import moment from 'moment'
 
 export default {
   name: 'List',
+  props: [ 'fetchFoodsPath' ],
   data () {
     return {
       serverErrors: [],
@@ -129,7 +130,7 @@ export default {
         'filter[taken_at_lteq]': this.dateRange.endDate
       }
 
-      let promise = this.plain.get('/foods', {params})
+      let promise = this.plain.get(this.fetchFoodsPath || '/foods', {params})
       return promise.then(response => {
         this.cleanErrors()
         this.totalRows = response.data.meta.records
@@ -163,6 +164,9 @@ export default {
     },
     isAdmin () {
       return this.$store.getters.isAdmin
+    },
+    isAllProductsView () {
+      return this.fetchFoodsPath === '/admin/foods'
     },
     cleanErrors () {
       this.serverErrors = []

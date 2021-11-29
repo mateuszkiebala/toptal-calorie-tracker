@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Authentication from '@/components/Authentication'
-import List from '@/components/foods/List'
+import AdminDashboard from '@/components/admin/Dashboard'
+import Dashboard from '@/components/Dashboard'
 import DailyStatistics from '@/components/DailyStatistics'
 import Report from '@/components/admin/Report'
 import Form from '@/components/foods/Form'
@@ -19,7 +20,7 @@ let router = new Router({
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: List,
+      component: Dashboard,
       meta: {
         requiresAuth: true
       }
@@ -30,15 +31,6 @@ let router = new Router({
       component: DailyStatistics,
       meta: {
         requiresAuth: true
-      }
-    },
-    {
-      path: '/admin/dashboard',
-      name: 'AdminDashboard',
-      component: List,
-      meta: {
-        requiresAuth: true,
-        isAdmin: true
       }
     },
     {
@@ -59,6 +51,15 @@ let router = new Router({
       }
     },
     {
+      path: '/admin/dashboard',
+      name: 'AdminDashboard',
+      component: AdminDashboard,
+      meta: {
+        requiresAuth: true,
+        isAdmin: true
+      }
+    },
+    {
       path: '/admin/report',
       name: 'Report',
       component: Report,
@@ -69,7 +70,7 @@ let router = new Router({
     },
     {
       path: '*',
-      component: List,
+      component: Dashboard,
       meta: {
         requiresAuth: true
       }
