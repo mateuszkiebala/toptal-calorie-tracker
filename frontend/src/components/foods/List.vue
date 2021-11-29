@@ -152,7 +152,7 @@ export default {
         return null
       }
 
-      if (confirm(`Do you really want to delete food: ID: ${item.id}, Name ${item.name}?`)) {
+      if (confirm(`Do you really want to delete food: ID: '${item.id}', Name '${item.food_name}'?`)) {
         this.plain.delete(`/admin/foods/${item.id}`)
           .then(response => {
             this.cleanErrors()
