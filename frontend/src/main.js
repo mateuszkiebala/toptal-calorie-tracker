@@ -26,9 +26,9 @@ Vue.component('apexchart', VueApexCharts)
 Vue.mixin({
   methods: {
     parseServerErrors: function (errors, text) {
-      console.log(errors)
-      if (!errors) {
-        return [text]
+      if (!errors.response || !errors.response.data || !errors.response.data.errors) {
+        const message = errors.status || 'Server not responding'
+        return [`${text}. Message: ${message}`]
       }
       return errors.response.data.errors.map(function (error) {
         return error.detail
