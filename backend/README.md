@@ -33,3 +33,6 @@ Run options: --seed 23445
 Finished in 0.991875s, 110.9011 runs/s, 295.4001 assertions/s.
 110 runs, 293 assertions, 0 failures, 0 errors, 0 skips
 ```
+
+Coverage:
+![alt text](coverage/img.png "Coverage")
