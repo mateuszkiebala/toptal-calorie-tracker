@@ -259,8 +259,8 @@ module Admin
     end
 
     test 'user_statistics success - empty' do
-      # given, when
-      get "/api/v1/admin/foods/user_statistics", params: {}, headers: @headers
+      # given when
+      get "/api/v1/admin/foods/user_statistics?page[number]=2&page[size]=3", params: {}, headers: @headers
 
       # then
       assert_response :ok
@@ -272,8 +272,10 @@ module Admin
 
     test 'user statistics success - without filters' do
       # given
-      food1 = create(:food, calorie_value: 12)
-      food2 = create(:food, calorie_value: 15)
+      user1 = create(:user)
+      user2 = create(:user)
+      food1 = create(:food, calorie_value: 12, user: user1)
+      food2 = create(:food, calorie_value: 15, user: user2)
 
       # when
       get "/api/v1/admin/foods/user_statistics", params: {}, headers: @headers
@@ -282,17 +284,21 @@ module Admin
       assert_response :ok
       response = JSON.parse(@response.body)
       assert_equal("food_user_statistics", response["data"]["type"])
-      expected_stats = {"average_calories"=>[{"user_id"=>food1.user_id, "value"=>"12.00"}, {"user_id"=>food2.user_id, "value"=>"15.00"}]}
+      expected_stats = {"average_calories"=>[{"user_id"=>@admin.id, "value"=>"0.00"},
+                                             {"user_id"=>user1.id, "value"=>"12.00"},
+                                             {"user_id"=>user2.id, "value"=>"15.00"}]}
       assert_equal(expected_stats, response["data"]["attributes"])
     end
 
     test 'user_statistics success - pagination with filters' do
       # given
+      user0 = create(:user, username: "0")
       user1 = create(:user, username: "1")
       user2 = create(:user, username: "2")
       user3 = create(:user, username: "3")
       user4 = create(:user, username: "4")
       user5 = create(:user, username: "5")
+      create(:food, user: user0, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
       create(:food, user: user1, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
       create(:food, user: user2, calorie_value: 12, taken_at: "2021-11-20 00:00:00")
       create(:food, user: user3, calorie_value: 15, taken_at: "2021-11-20 00:00:00" )
@@ -306,16 +312,19 @@ module Admin
       create(:food, user: user5, calorie_value: 100, taken_at: "2021-11-22 00:00:00" )
 
       # when
-      get "/api/v1/admin/foods/user_statistics?page[number]=2&page[size]=2&filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'", params: {}, headers: @headers
+      get "/api/v1/admin/foods/user_statistics?page[number]=2&page[size]=3&filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'", params: {}, headers: @headers
 
       # then
       assert_response :ok
       response = JSON.parse(@response.body)
       assert_equal("food_user_statistics", response["data"]["type"])
-      expected_stats = {"average_calories"=>[{"user_id"=>user3.id, "value"=>"18.50"}, {"user_id"=>user4.id, "value"=>"180.25"}]}
+      expected_stats = {
+        "average_calories"=>[{"user_id"=>user2.id, "value"=>"0.00"},
+                             {"user_id"=>user3.id, "value"=>"18.50"},
+                             {"user_id"=>user4.id, "value"=>"180.25"}]}
       assert_equal(expected_stats, response["data"]["attributes"])
 
-      expected_next_link = "http://www.example.com/api/v1/admin/foods/user_statistics?filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'&page[number]=3&page[size]=2"
+      expected_next_link = "http://www.example.com/api/v1/admin/foods/user_statistics?filter[taken_at_gteq]='2021-11-21T00:00:00'&filter[taken_at_lteq]='2021-11-22T00:00:00'&page[number]=3&page[size]=3"
       assert_equal(expected_next_link, response["links"]["next"])
       assert_equal(User.all.count, response["meta"]["records"])
     end

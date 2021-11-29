@@ -34,18 +34,26 @@ module Api
 
         # GET /api/v1/admin/foods/user_statistics
         def user_statistics
-          pagination_data_source = User.order(username: :asc)
+          pagination_data_source = User.order(id: :asc)
           links = jsonapi_pagination(pagination_data_source)
           meta = jsonapi_pagination_meta(pagination_data_source)
+          offset, limit, _ = jsonapi_pagination_params
 
           jsonapi_paginate(pagination_data_source) do |paginated|
-            render_jsonapi_success(nil, :ok) if paginated.blank?
-
             users_to_fetch = paginated.pluck(:id)
-            filter_data_source = Food.where(user_id: users_to_fetch).order(taken_at: :desc)
-            allowed = [:taken_at]
-            jsonapi_filter(filter_data_source, allowed) do |filtered|
-              handle_command(Foods::UserStatistics, { data_source: filtered.result }, { links: links, meta: meta })
+            if users_to_fetch.blank?
+              handle_command(Foods::UserStatistics, { data_source: [], limit: limit, offset: offset }, { links: links, meta: meta })
+            else
+              filter_data_source = Food.where(user_id: users_to_fetch).order(taken_at: :desc)
+              allowed = [:taken_at]
+              jsonapi_filter(filter_data_source, allowed) do |filtered|
+                command_data = {
+                  data_source: filtered.result,
+                  limit: limit,
+                  offset: offset
+                }
+                handle_command(Foods::UserStatistics, command_data, { links: links, meta: meta })
+              end
             end
           end
         end

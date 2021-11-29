@@ -84,7 +84,7 @@ class FoodsControllerTest < AuthenticationTest
       "type": "foods",
       "attributes": {
         "name": food.name,
-        "calorie_value": food.calorie_value.to_s('F'),
+        "calorie_value": "%.2f" % food.calorie_value,
         "price": "0.00",
         "taken_at": food.taken_at.strftime("%Y-%m-%dT%H:%M:%S")
       }
