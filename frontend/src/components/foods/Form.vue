@@ -2,6 +2,9 @@
   <div>
     <AppHeader></AppHeader>
 
+    <h3 v-if="this.$route.params.id">Update product</h3>
+    <h3 v-else>Create new product</h3>
+
     <div class="container">
       <h3 v-if="!noServerErrors()">Errors</h3>
       <ul class="errors">

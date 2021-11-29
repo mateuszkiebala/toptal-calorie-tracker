@@ -8,6 +8,7 @@ import Vuelidate from 'vuelidate'
 import { plainAxiosInstance } from './backend/axios'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import VueApexCharts from 'vue-apexcharts'
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, {
@@ -16,6 +17,9 @@ Vue.use(VueAxios, {
 
 Vue.use(BootstrapVue)
 Vue.use(Vuelidate)
+
+Vue.use(VueApexCharts)
+Vue.component('apexchart', VueApexCharts)
 
 /* eslint-disable no-new */
 new Vue({

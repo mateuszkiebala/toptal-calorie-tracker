@@ -1,9 +1,14 @@
 <template>
   <div class="container">
-    <date-range-picker
-      v-model="dateRange"
-      @update="refreshTable"
-    ></date-range-picker>
+    <h3 style="margin-bottom: 2em">Products</h3>
+
+    <b-form-group id="group-date-range" label="Filter by date:" label-for="date-range">
+      <date-range-picker
+        id="date-range"
+        v-model="dateRange"
+        @update="refreshTable"
+      ></date-range-picker>
+    </b-form-group>
 
     <b-container fluid>
       <!-- User Interface controls -->
