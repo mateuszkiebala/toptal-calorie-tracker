@@ -58,4 +58,7 @@ export default {
   .navbar .home {
     padding-left: 0;
   }
+  ul li:hover {
+    background: #fcfcfc;
+  }
 </style>

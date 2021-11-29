@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <AppHeader></AppHeader>
+    <ErrorAlert :errors="serverErrors"></ErrorAlert>
+
     <h3 style="margin-bottom: 2em">Products</h3>
 
     <b-form-group id="group-date-range" label="Filter by date:" label-for="date-range">
@@ -79,6 +82,8 @@
 </template>
 
 <script>
+import AppHeader from '@/components/AppHeader'
+import ErrorAlert from '@/components/ErrorAlert'
 import DateRangePicker from 'vue2-daterange-picker'
 import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 import moment from 'moment'
@@ -87,7 +92,7 @@ export default {
   name: 'List',
   data () {
     return {
-      error: '',
+      serverErrors: [],
       dateRange: {
         startDate: null,
         endDate: null
@@ -113,9 +118,6 @@ export default {
     this.dateRange.endDate = now.endOf('day').toISOString()
   },
   methods: {
-    setError (error, text) {
-      this.error = (error.response.errors[0] && error.response.errors[0].detail) || text
-    },
     refreshTable (event) {
       this.$root.$emit('bv::refresh::table', 'foods-list')
     },
@@ -137,7 +139,7 @@ export default {
             return Object.assign({}, food.attributes, {id: food.id, food_name: food.attributes.name})
           })
         }).catch(error => {
-          this.setError(error, 'Something went wrong')
+          this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
           return []
         })
       }
@@ -152,8 +154,7 @@ export default {
           .then(response => {
             this.refreshTable()
           }).catch(error => {
-            this.setError(error, 'Something went wrong')
-            return []
+            this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
           })
       }
     },
@@ -164,9 +165,12 @@ export default {
     },
     isAdmin () {
       return this.$store.getters.isAdmin
+    },
+    cleanErrors () {
+      this.serverErrors = []
     }
   },
-  components: { DateRangePicker }
+  components: { AppHeader, DateRangePicker, ErrorAlert }
 }
 </script>
 

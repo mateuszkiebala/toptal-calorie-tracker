@@ -1,87 +1,87 @@
 <template>
-  <div>
+  <div class="container">
     <AppHeader></AppHeader>
+    <ErrorAlert :errors="serverErrors"></ErrorAlert>
 
-    <div class="container">
-      <div class="container gs-chart" v-if="chart.series.length > 0">
-        <h3>Global statistics</h3>
-        <apexchart type="donut" :options="chart.options" :series="chart.series"></apexchart>
-      </div>
-
-      <b-container fluid>
-        <h3>User statistics</h3>
-        <!-- User Interface controls -->
-        <b-row>
-          <b-col sm="5" md="6" class="my-1">
-            <b-form-group
-              label="Per page"
-              label-for="per-page-select"
-              label-cols-sm="6"
-              label-cols-md="4"
-              label-cols-lg="3"
-              label-align-sm="right"
-              label-size="sm"
-              class="mb-0"
-            >
-              <b-form-select
-                id="per-page-select"
-                v-model="perPage"
-                :options="pageOptions"
-                size="sm"
-              ></b-form-select>
-            </b-form-group>
-          </b-col>
-
-          <b-col sm="7" md="6" class="my-1">
-            <b-pagination
-              v-model="currentPage"
-              :total-rows="totalRows"
-              :per-page="perPage"
-              align="fill"
-              size="sm"
-              class="my-0"
-            ></b-pagination>
-          </b-col>
-        </b-row>
-
-        <!-- Main table element -->
-        <b-table
-          id="report-list"
-          :busy.sync="isBusy"
-          :items="fetchUserStatistics"
-          :fields="fields"
-          :current-page="currentPage"
-          :per-page="perPage"
-          stacked="md"
-          show-empty
-          small
-        >
-          <template #cell(name)="row">
-            {{ row.value.first }} {{ row.value.last }}
-          </template>
-
-          <template #row-details="row">
-            <b-card>
-              <ul>
-                <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
-              </ul>
-            </b-card>
-          </template>
-        </b-table>
-      </b-container>
+    <div class="container gs-chart" v-if="chart.series.length > 0">
+      <h3>Global statistics</h3>
+      <apexchart type="donut" :options="chart.options" :series="chart.series"></apexchart>
     </div>
+
+    <b-container fluid>
+      <h3>User statistics</h3>
+      <!-- User Interface controls -->
+      <b-row>
+        <b-col sm="5" md="6" class="my-1">
+          <b-form-group
+            label="Per page"
+            label-for="per-page-select"
+            label-cols-sm="6"
+            label-cols-md="4"
+            label-cols-lg="3"
+            label-align-sm="right"
+            label-size="sm"
+            class="mb-0"
+          >
+            <b-form-select
+              id="per-page-select"
+              v-model="perPage"
+              :options="pageOptions"
+              size="sm"
+            ></b-form-select>
+          </b-form-group>
+        </b-col>
+
+        <b-col sm="7" md="6" class="my-1">
+          <b-pagination
+            v-model="currentPage"
+            :total-rows="totalRows"
+            :per-page="perPage"
+            align="fill"
+            size="sm"
+            class="my-0"
+          ></b-pagination>
+        </b-col>
+      </b-row>
+
+      <!-- Main table element -->
+      <b-table
+        id="report-list"
+        :busy.sync="isBusy"
+        :items="fetchUserStatistics"
+        :fields="fields"
+        :current-page="currentPage"
+        :per-page="perPage"
+        stacked="md"
+        show-empty
+        small
+      >
+        <template #cell(name)="row">
+          {{ row.value.first }} {{ row.value.last }}
+        </template>
+
+        <template #row-details="row">
+          <b-card>
+            <ul>
+              <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
+            </ul>
+          </b-card>
+        </template>
+      </b-table>
+    </b-container>
   </div>
 </template>
 
 <script>
 import AppHeader from '@/components/AppHeader'
+import ErrorAlert from '@/components/ErrorAlert'
 import moment from 'moment'
 
 export default {
   name: 'Report',
   data () {
     return {
-      error: '',
+      serverErrors: [],
       isBusy: false,
       fields: [
         { key: 'user_id', label: 'User ID' },
@@ -127,9 +127,6 @@ export default {
     this.setGlobalStatistics()
   },
   methods: {
-    setError (error, text) {
-      this.error = (error.response.errors[0] && error.response.errors[0].detail) || text
-    },
     fetchUserStatistics (ctx) {
       if (!this.$store.getters.signedIn || !this.isAdmin()) {
         this.$router.replace('/')
@@ -153,7 +150,7 @@ export default {
             }
           })
         }).catch(error => {
-          this.setError(error, 'Something went wrong')
+          this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
           return []
         })
       }
@@ -168,10 +165,10 @@ export default {
               this.globalStats.previous = response.data.data.attributes.entries_count
               this.chart.series = [this.globalStats.current, this.globalStats.previous]
             }).catch(error => {
-              this.setError(error, 'Something went wrong')
+              this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
             })
         }).catch(error => {
-          this.setError(error, 'Something went wrong')
+          this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
         })
     },
     fetchGlobalStatistics (startDate, endDate) {
@@ -187,9 +184,12 @@ export default {
     },
     isAdmin () {
       return this.$store.getters.isAdmin
+    },
+    cleanErrors () {
+      this.serverErrors = []
     }
   },
-  components: { AppHeader }
+  components: { AppHeader, ErrorAlert }
 }
 </script>
 

@@ -1,18 +1,10 @@
 <template>
-  <div>
+  <div class="container">
     <AppHeader></AppHeader>
+    <ErrorAlert :errors="serverErrors"></ErrorAlert>
 
     <h3 v-if="this.$route.params.id">Update product</h3>
     <h3 v-else>Create new product</h3>
-
-    <div class="container">
-      <h3 v-if="!noServerErrors()">Errors</h3>
-      <ul class="errors">
-        <li v-for="error in errors" :key="error" :error="error">
-          <b-alert variant="danger" show>{{ error }}</b-alert>
-        </li>
-      </ul>
-    </div>
 
     <b-form class="form-food" @submit="onSubmit" @reset="onReset" v-if="show">
       <b-form-group id="input-group-name" label="Name:" label-for="input-name">
@@ -102,6 +94,7 @@
 
 <script>
 import AppHeader from '@/components/AppHeader'
+import ErrorAlert from '@/components/ErrorAlert'
 import { validationMixin } from 'vuelidate'
 import { required, minLength, maxLength, helpers, between, minValue } from 'vuelidate/lib/validators'
 import moment from 'moment'
@@ -111,7 +104,7 @@ export default {
   mixins: [validationMixin],
   data () {
     return {
-      errors: [],
+      serverErrors: [],
       food_id: null,
       form: {
         name: null,
@@ -158,15 +151,6 @@ export default {
     validateState (name) {
       const { $dirty, $error } = this.$v.form[name]
       return $dirty ? !$error : null
-    },
-    noServerErrors () {
-      return this.errors == null || this.errors.length === 0
-    },
-    setError (serverErrors, text) {
-      let messages = serverErrors.response.data.errors.map(function (error) {
-        return error.detail
-      })
-      this.errors = messages || [text]
     },
     onSubmit (event) {
       event.preventDefault()
@@ -221,7 +205,7 @@ export default {
         .then(response => {
           this.$router.replace('/dashboard')
         }).catch(error => {
-          this.setError(error, 'Something went wrong')
+          this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
         })
     },
     updateFood () {
@@ -231,7 +215,7 @@ export default {
           .then(response => {
             this.$router.replace('/dashboard')
           }).catch(error => {
-            this.setError(error, 'Something went wrong')
+            this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
           })
       }
     },
@@ -247,15 +231,18 @@ export default {
             this.form.taken_at_time = moment(foodAttributes.taken_at).format('hh:mm')
             this.$v.form.$touch()
           }).catch(error => {
-            this.setError(error, 'Something went wrong')
+            this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
           })
       }
     },
     isAdmin () {
       return this.$store.getters.isAdmin
+    },
+    cleanErrors () {
+      this.serverErrors = []
     }
   },
-  components: { AppHeader }
+  components: { AppHeader, ErrorAlert }
 }
 </script>
 
@@ -265,10 +252,5 @@ export default {
     max-width: 500px;
     padding: 10% 15px;
     margin: 0 auto;
-  }
-  ul.errors {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
   }
 </style>

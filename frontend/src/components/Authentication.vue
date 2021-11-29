@@ -1,6 +1,7 @@
 <template>
   <form class="form-authentication" @submit.prevent="authenticate">
-    <div class="alert alert-danger" v-if="error">{{ error }}</div>
+    <ErrorAlert :errors="serverErrors"></ErrorAlert>
+
     <div class="form-group">
       <label for="authToken">Authentication Token</label>
       <input v-model="authToken" type="password" class="form-control" id="authToken" placeholder="Authentication Token">
@@ -10,12 +11,14 @@
 </template>
 
 <script>
+import ErrorAlert from '@/components/ErrorAlert'
+
 export default {
   name: 'Authentication',
   data () {
     return {
       authToken: '',
-      error: ''
+      serverErrors: []
     }
   },
   created () {
@@ -32,19 +35,23 @@ export default {
     },
     authenticationSuccessful (response) {
       this.$store.commit('setCurrentUser', { currentUser: response.data.data.attributes, authToken: this.authToken })
-      this.error = ''
+      this.cleanErrors()
       this.$router.replace('/dashboard')
     },
     authenticationFailed (error) {
-      this.error = (error.response && error.response.data.errors.detail) || ''
+      this.serverErrors = this.parseServerErrors(error, 'Something went wrong during authenticating...')
       this.$store.commit('unsetCurrentUser')
     },
     checkSignedIn () {
       if (this.$store.getters.signedIn) {
         this.$router.replace('/dashboard')
       }
+    },
+    cleanErrors () {
+      this.serverErrors = []
     }
-  }
+  },
+  components: { ErrorAlert }
 }
 </script>
 
