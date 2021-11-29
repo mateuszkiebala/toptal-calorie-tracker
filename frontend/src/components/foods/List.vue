@@ -123,13 +123,11 @@ export default {
       if (!this.$store.getters.signedIn) {
         this.$router.replace('/')
       } else {
-        let startDate = this.dateRange.startDate
-        let endDate = this.dateRange.endDate
         let params = {
           'page[number]': this.currentPage,
           'page[size]': this.perPage,
-          'filter[taken_at_gteq]': startDate,
-          'filter[taken_at_lteq]': endDate
+          'filter[taken_at_gteq]': this.dateRange.startDate,
+          'filter[taken_at_lteq]': this.dateRange.endDate
         }
 
         let promise = this.plain.get('/foods', {params})

@@ -7,6 +7,9 @@
       <li class="nav-item new-product">
         <router-link class="nav-link" to="/foods/new">New Product</router-link>
       </li>
+      <li class="nav-item daily-statistics">
+        <router-link class="nav-link" to="/daily_statistics">Daily Statistics</router-link>
+      </li>
     </ul>
     <ul class="navbar ml-auto">
       <li class="nav-item" v-if="showAdminLink()">

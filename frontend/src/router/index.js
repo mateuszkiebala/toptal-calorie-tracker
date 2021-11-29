@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Authentication from '@/components/Authentication'
 import Dashboard from '@/components/Dashboard'
+import DailyStatistics from '@/components/DailyStatistics'
 import AdminDashboard from '@/components/admin/AdminDashboard'
 import Report from '@/components/admin/Report'
 import Form from '@/components/foods/Form'
@@ -19,6 +20,11 @@ export default new Router({
       path: '/dashboard',
       name: 'Dashboard',
       component: Dashboard
+    },
+    {
+      path: '/daily_statistics',
+      name: 'DailyStatistics',
+      component: DailyStatistics
     },
     {
       path: '/admin/dashboard',
