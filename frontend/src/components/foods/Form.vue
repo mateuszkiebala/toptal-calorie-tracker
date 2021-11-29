@@ -203,6 +203,7 @@ export default {
       let data = this.getFoodAttributes()
       this.plain.post('/foods', { data })
         .then(response => {
+          this.cleanErrors()
           this.$router.replace('/dashboard')
         }).catch(error => {
           this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
@@ -213,6 +214,7 @@ export default {
         let data = this.getFoodAttributes()
         this.plain.patch(`/admin/foods/${this.food_id}`, { data })
           .then(response => {
+            this.cleanErrors()
             this.$router.replace('/dashboard')
           }).catch(error => {
             this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
@@ -223,6 +225,7 @@ export default {
       if (this.isAdmin() && this.food_id) {
         this.plain.get(`/foods/${this.food_id}`)
           .then(response => {
+            this.cleanErrors()
             let foodAttributes = response.data.data.attributes
             this.form.name = foodAttributes.name
             this.form.calorie_value = foodAttributes.calorie_value

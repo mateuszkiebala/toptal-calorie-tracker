@@ -5,10 +5,11 @@ import List from '@/components/foods/List'
 import DailyStatistics from '@/components/DailyStatistics'
 import Report from '@/components/admin/Report'
 import Form from '@/components/foods/Form'
+import { store } from './../store'
 
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     {
       path: '/',
@@ -17,33 +18,86 @@ export default new Router({
     },
     {
       path: '/dashboard',
-      name: 'RegularList',
-      component: List
+      name: 'Dashboard',
+      component: List,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/daily_statistics',
       name: 'DailyStatistics',
-      component: DailyStatistics
+      component: DailyStatistics,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/admin/dashboard',
-      name: 'AdminList',
-      component: List
+      name: 'AdminDashboard',
+      component: List,
+      meta: {
+        requiresAuth: true,
+        isAdmin: true
+      }
     },
     {
       path: '/foods/new',
       name: 'FoodNew',
-      component: Form
+      component: Form,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/foods/edit/:id',
       name: 'FoodEdit',
-      component: Form
+      component: Form,
+      meta: {
+        requiresAuth: true,
+        isAdmin: true
+      }
     },
     {
       path: '/admin/report',
       name: 'Report',
-      component: Report
+      component: Report,
+      meta: {
+        requiresAuth: true,
+        isAdmin: true
+      }
+    },
+    {
+      path: '*',
+      component: List,
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!store.getters.signedIn) {
+      next({
+        path: '/',
+        params: {nextUrl: to.fullPath}
+      })
+    } else {
+      if (to.matched.some(record => record.meta.isAdmin)) {
+        if (store.getters.isAdmin) {
+          next()
+        } else {
+          next({name: 'Dashboard'})
+        }
+      } else {
+        next()
+      }
+    }
+  } else {
+    next()
+  }
+})
+
+export default router

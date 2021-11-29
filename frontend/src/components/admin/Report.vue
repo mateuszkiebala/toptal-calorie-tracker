@@ -128,32 +128,29 @@ export default {
   },
   methods: {
     fetchUserStatistics (ctx) {
-      if (!this.$store.getters.signedIn || !this.isAdmin()) {
-        this.$router.replace('/')
-      } else {
-        let startDate = moment().subtract(7, 'd').startOf('day').toISOString()
-        let endDate = moment().endOf('day').toISOString()
-        let params = {
-          'page[number]': this.currentPage,
-          'page[size]': this.perPage,
-          'filter[taken_at_gteq]': startDate,
-          'filter[taken_at_lteq]': endDate
-        }
-
-        let promise = this.plain.get('/admin/foods/user_statistics', { params })
-        return promise.then(response => {
-          this.totalRows = response.data.meta.records
-          return response.data.data.attributes.average_calories.map(function (stats) {
-            return {
-              user_id: stats.user_id,
-              average_calorie_value: stats.value
-            }
-          })
-        }).catch(error => {
-          this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
-          return []
-        })
+      let startDate = moment().subtract(7, 'd').startOf('day').toISOString()
+      let endDate = moment().endOf('day').toISOString()
+      let params = {
+        'page[number]': this.currentPage,
+        'page[size]': this.perPage,
+        'filter[taken_at_gteq]': startDate,
+        'filter[taken_at_lteq]': endDate
       }
+
+      let promise = this.plain.get('/admin/foods/user_statistics', { params })
+      return promise.then(response => {
+        this.cleanErrors()
+        this.totalRows = response.data.meta.records
+        return response.data.data.attributes.average_calories.map(function (stats) {
+          return {
+            user_id: stats.user_id,
+            average_calorie_value: stats.value
+          }
+        })
+      }).catch(error => {
+        this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
+        return []
+      })
     },
     setGlobalStatistics () {
       this.fetchGlobalStatistics(this.globalStats.curStartDate, this.globalStats.curEndDate)
@@ -162,6 +159,7 @@ export default {
 
           this.fetchGlobalStatistics(this.globalStats.preStartDate, this.globalStats.preEndDate)
             .then(response => {
+              this.cleanErrors()
               this.globalStats.previous = response.data.data.attributes.entries_count
               this.chart.series = [this.globalStats.current, this.globalStats.previous]
             }).catch(error => {
@@ -172,18 +170,11 @@ export default {
         })
     },
     fetchGlobalStatistics (startDate, endDate) {
-      if (!this.$store.getters.signedIn || !this.isAdmin()) {
-        this.$router.replace('/')
-      } else {
-        let params = {
-          'filter[taken_at_gteq]': startDate.toISOString(),
-          'filter[taken_at_lteq]': endDate.toISOString()
-        }
-        return this.plain.get('/admin/foods/global_statistics', { params })
+      let params = {
+        'filter[taken_at_gteq]': startDate.toISOString(),
+        'filter[taken_at_lteq]': endDate.toISOString()
       }
-    },
-    isAdmin () {
-      return this.$store.getters.isAdmin
+      return this.plain.get('/admin/foods/global_statistics', { params })
     },
     cleanErrors () {
       this.serverErrors = []

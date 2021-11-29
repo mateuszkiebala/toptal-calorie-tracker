@@ -125,6 +125,7 @@ export default {
     fetchDailyStatistics (ctx) {
       let promise = this.fetchStatistics(this.dateRange.startDate, this.dateRange.endDate)
       return promise.then(response => {
+        this.cleanErrors()
         return response.data.data.attributes.values
       }).catch(error => {
         this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
@@ -134,35 +135,39 @@ export default {
     setTodayCalorieSum () {
       const startDate = moment().startOf('day').toISOString()
       const endDate = moment().endOf('day').toISOString()
-      this.fetchStatistics(startDate, endDate).then(response => {
-        this.todayCalorieSum = parseFloat(response.data.data.attributes.values[0].calorie_sum)
-      }).catch(error => {
-        this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
-      })
+      this.fetchStatistics(startDate, endDate)
+        .then(response => {
+          this.cleanErrors()
+          if (response.data.data.attributes.values.length === 0) {
+            this.todayCalorieSum = 0
+          } else {
+            this.todayCalorieSum = parseFloat(response.data.data.attributes.values[0].calorie_sum)
+          }
+        }).catch(error => {
+          this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
+        })
     },
     setMonthlyMoneySum () {
       const startOfMonth = moment().startOf('month').toISOString()
       const endOfMonth = moment().endOf('month').toISOString()
-      this.fetchStatistics(startOfMonth, endOfMonth).then(response => {
-        this.monthlyMoneySum = response.data.data.attributes.values.map(function (dailyStat) {
-          return parseFloat(dailyStat.price_sum)
-        }).reduce(function (acc, priceSum) {
-          return acc + priceSum
+      this.fetchStatistics(startOfMonth, endOfMonth)
+        .then(response => {
+          this.cleanErrors()
+          this.monthlyMoneySum = response.data.data.attributes.values.map(function (dailyStat) {
+            return parseFloat(dailyStat.price_sum)
+          }).reduce(function (acc, priceSum) {
+            return acc + priceSum
+          })
+        }).catch(error => {
+          this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
         })
-      }).catch(error => {
-        this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')
-      })
     },
     fetchStatistics (startDate, endDate) {
-      if (!this.$store.getters.signedIn) {
-        this.$router.replace('/')
-      } else {
-        let params = {
-          'filter[taken_at_gteq]': startDate,
-          'filter[taken_at_lteq]': endDate
-        }
-        return this.plain.get('/foods/daily_statistics', { params })
+      let params = {
+        'filter[taken_at_gteq]': startDate,
+        'filter[taken_at_lteq]': endDate
       }
+      return this.plain.get('/foods/daily_statistics', { params })
     },
     isCalorieLimitExceeded () {
       return this.todayCalorieSum > this.calorieLimit

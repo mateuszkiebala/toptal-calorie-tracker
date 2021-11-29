@@ -122,27 +122,24 @@ export default {
       this.$root.$emit('bv::refresh::table', 'foods-list')
     },
     fetchData (ctx) {
-      if (!this.$store.getters.signedIn) {
-        this.$router.replace('/')
-      } else {
-        let params = {
-          'page[number]': this.currentPage,
-          'page[size]': this.perPage,
-          'filter[taken_at_gteq]': this.dateRange.startDate,
-          'filter[taken_at_lteq]': this.dateRange.endDate
-        }
-
-        let promise = this.plain.get('/foods', {params})
-        return promise.then(response => {
-          this.totalRows = response.data.meta.records
-          return response.data.data.map(function (food) {
-            return Object.assign({}, food.attributes, {id: food.id, food_name: food.attributes.name})
-          })
-        }).catch(error => {
-          this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
-          return []
-        })
+      let params = {
+        'page[number]': this.currentPage,
+        'page[size]': this.perPage,
+        'filter[taken_at_gteq]': this.dateRange.startDate,
+        'filter[taken_at_lteq]': this.dateRange.endDate
       }
+
+      let promise = this.plain.get('/foods', {params})
+      return promise.then(response => {
+        this.cleanErrors()
+        this.totalRows = response.data.meta.records
+        return response.data.data.map(function (food) {
+          return Object.assign({}, food.attributes, {id: food.id, food_name: food.attributes.name})
+        })
+      }).catch(error => {
+        this.serverErrors = this.parseServerErrors(error, 'Something went wrong during data fetching...')
+        return []
+      })
     },
     removeFood (item, index, button) {
       if (!this.isAdmin()) {
@@ -152,6 +149,7 @@ export default {
       if (confirm(`Do you really want to delete food: ID: ${item.id}, Name ${item.name}?`)) {
         this.plain.delete(`/admin/foods/${item.id}`)
           .then(response => {
+            this.cleanErrors()
             this.refreshTable()
           }).catch(error => {
             this.serverErrors = this.parseServerErrors(error, 'Something went wrong.')

@@ -25,10 +25,13 @@ Vue.component('apexchart', VueApexCharts)
 Vue.mixin({
   methods: {
     parseServerErrors: function (errors, text) {
-      let messages = errors.response.data.errors.map(function (error) {
+      console.log(errors)
+      if (!errors) {
+        return [text]
+      }
+      return errors.response.data.errors.map(function (error) {
         return error.detail
       })
-      return messages || [text]
     }
   }
 })
